@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>美食推薦器</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+<style>
+/* -------------------- 你的原始樣式（未修改） -------------------- */
+
+body {
+  font-family: "Noto Sans TC", sans-serif;
+  background: #fff8f0;
+  color: #4a3b2c;
+  margin: 0;
+  padding: 0;
+}
+
+.hero {
+  background-image: url("https://img.freepik.com/premium-vector/food-pattern-seamless_534604-531.jpg");
+  background-size: cover;
+  background-position: center;
+  color: #fff8f0;
+  text-align: center;
+  padding: 4rem 1rem;
+  position: relative;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(245, 139, 84, 0.3);
+  z-index: 0;
+}
+
+.hero h1 {
+  position: relative; z-index: 1;
+  font-size: 2.8rem;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  color: #fff8f0;
+  margin: 0;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.1);
+}
+
+header {
+  background: #f4c095;
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  padding: 1rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  border-bottom: 2px solid #f58b54;
+}
+
+header a {
+  text-decoration: none;
+  color: #4a3b2c;
+  font-weight: 600;
+  font-size: 1.1rem;
+  transition: 0.3s;
+}
+
+header a:hover { color: #f58b54; }
+
+section {
+  display: none;
+  padding: 2rem;
+  max-width: 700px;
+  margin: auto;
+  background: #fff0e6;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(245, 139, 84, 0.15);
+  margin-top: 2rem;
+  border: 1px solid #f4c095;
+}
+
+section.active { display: block; }
+
+h2 {
+  text-align: center;
+  color: #f58b54;
+  border-bottom: 2px solid #f58b54;
+  padding-bottom: 0.5rem;
+}
+
+label { display: block; margin: 10px 0; color: #4a3b2c; }
+
+select, input[type="text"], button {
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #f4c095;
+  font-size: 1rem;
+  background: #fff8f0;
+  color: #4a3b2c;
+}
+
+select:focus, input[type="text"]:focus {
+  outline: none;
+  border-color: #f58b54;
+  box-shadow: 0 0 5px #f58b54;
+}
+
+.checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.checkbox-group label {
+  background: #fff0e6;
+  border-radius: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+  color: #4a3b2c;
+  border: 1px solid #f4c095;
+  transition: background 0.3s;
+}
+
+.checkbox-group label:hover { background: #ffe3d1; }
+
+button {
+  background-color: #f58b54;
+  color: white;
+  border: none;
+  cursor: pointer;
+  margin-top: 20px;
+  font-weight: 700;
+  transition: 0.3s;
+}
+
+button:hover { background-color: #f79465; }
+
+#map, #mapFilter, #mapCustom {
+  height: 300px;
+  width: 100%;
+  margin-top: 10px;
+  border-radius: 12px;
+}
+
+/* 收藏側欄 */
+#toggleFavorites {
+  position: fixed;
+  top: 70px;
+  left: 20px;
+  background-color: #ff8c42;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 18px;
+  cursor: pointer;
+  z-index: 1100;
+}
+
+#favoriteSidebar {
+  position: fixed;
+  top: 0; left: -300px;
+  width: 280px; height: 100%;
+  background-color: #fff8f0;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+  overflow-y: auto;
+  transition: left 0.4s ease;
+  z-index: 1000;
+  padding: 150px 20px 20px 20px;
+}
+
+#favoriteSidebar.active { left: 0; }
+
+#favoriteSidebar ul { list-style: none; padding: 0; }
+
+/* 留言區 */
+#reviewArea { margin-top: 20px; }
+
+</style>
+</head>
+<body>
+
+<!-- 左上角登入區 -->
+<div id="loginArea" style="position: fixed; top: 10px; left: 10px; z-index: 10; background: #f4c095; padding: 5px 10px; border-radius: 8px; border: 1px solid #f58b54;">
+  <span id="welcomeText">未登入</span>
+  <button id="loginBtn" style="margin-left: 10px;">登入</button>
+</div>
+
+<div class="hero">
+  <h1>美食推薦器</h1>
+</div>
+
+<header>
+  <a href="#" onclick="showSection('random')">隨機抽選</a>
+  <a href="#" onclick="showSection('filter')">分類篩選</a>
+  <a href="#" onclick="showSection('custom')">輸入需求</a>
+  <a href="#" onclick="showSection('content')">網友留言區</a>
+</header>
+
+<!-- ======================
+      隨機抽選
+======================= -->
+<section id="random" class="active">
+  <h2>🎲 隨機抽選</h2>
+  <form id="randomForm">
+
+    <label>城市：
+      <select id="citySelect" onchange="updateDistricts()">
+        <option value="">請選擇城市</option>
+        <option value="台北市">台北市</option>
+        <option value="新北市">新北市</option>
+        <option value="桃園市">桃園市</option>
+        <option value="台中市">台中市</option>
+        <option value="台南市">台南市</option>
+        <option value="高雄市">高雄市</option>
+      </select>
+    </label>
+
+    <label>區域：
+      <select id="districtSelect">
+        <option value="">請先選擇城市</option>
+      </select>
+    </label>
+
+    <label>主食類型：
+      <select id="mainType" onchange="checkOtherType()">
+        <option value="">請選擇</option>
+        <option value="飯">飯</option>
+        <option value="麵">麵</option>
+        <option value="甜點">甜點</option>
+        <option value="飲料">飲料</option>
+        <option value="其他">其他</option>
+      </select>
+    </label>
+
+    <label id="otherInputLabel" style="display:none;">
+      自定義主食類型：
+      <input type="text" id="otherInput" placeholder="例如：壽司、燒肉、早午餐…">
+    </label>
+
+    <label>口味：</label>
+    <div class="checkbox-group" id="tasteChecks">
+      <label><input type="checkbox" value="鹹">鹹</label>
+      <label><input type="checkbox" value="甜">甜</label>
+      <label><input type="checkbox" value="辣">辣</label>
+      <label><input type="checkbox" value="酸">酸</label>
+    </div>
+
+    <label>價位：</label>
+    <div class="checkbox-group" id="priceChecks">
+      <label><input type="checkbox" value="便宜">便宜</label>
+      <label><input type="checkbox"value="中等">中等</label>
+      <label><input type="checkbox"value="高級">高級</label>
+    </div>
+
+    <button type="button" onclick="randomRecommend()">開始隨機推薦！</button>
+  </form>
+
+  <div id="recommendation"></div>
+  <div id="map"></div>
+</section>
+
+<!-- ======================
+      分類篩選
+======================= -->
+<section id="filter">
+  <h2>🍱 分類篩選</h2>
+
+  <div class="category-buttons">
+    <button onclick="filterCategory('高CP值')">高CP值</button>
+    <button onclick="filterCategory('約會餐廳')">約會餐廳</button>
+    <button onclick="filterCategory('多人聚會')">多人聚會</button>
+    <button onclick="filterCategory('甜點下午茶')">甜點下午茶</button>
+    <button onclick="filterCategory('夜貓子')">夜貓子</button>
+    <button onclick="filterCategory('趕時間')">趕時間</button>
+    <button onclick="filterCategory('外帶外送友善')">外帶外送友善</button>
+    <button onclick="filterCategory('下雨天')">下雨天</button>
+  </div>
+
+  <ul id="restaurantList"></ul>
+  <div id="mapFilter"></div>
+</section>
+
+<!-- ======================
+      輸入需求
+======================= -->
+<section id="custom">
+  <h2>🔍 輸入需求</h2>
+
+  <label>城市：
+    <select id="customCity" onchange="updateCustomDistricts()">
+      <option value="">請選擇城市</option>
+      <option value="台北市">台北市</option>
+      <option value="新北市">新北市</option>
+      <option value="桃園市">桃園市</option>
+      <option value="台中市">台中市</option>
+      <option value="台南市">台南市</option>
+      <option value="高雄市">高雄市</option>
+    </select>
+  </label>
+
+  <label>區域：
+    <select id="customDistrict">
+      <option value="">請先選擇城市</option>
+    </select>
+  </label>
+
+  <label>請輸入您的需求（例：我想吃拉麵、想找約會餐廳…）：
+    <input id="freeText" type="text" placeholder="例如：我想吃便宜拉麵">
+  </label>
+
+  <button onclick="customSearch()">送出搜尋</button>
+
+  <div id="customResults"></div>
+  <div id="mapCustom"></div>
+</section>
+
+<!-- ======================
+      網友留言區
+======================= -->
+<section id="content">
+  <h2>網友留言區</h2>
+
+  <div id="searchArea">
+    <input type="text" id="searchRestaurant" placeholder="輸入餐廳名稱，例如：阿宗麵線">
+    <button id="searchBtn">搜尋評論</button>
+  </div>
+
+  <div id="reviewArea" style="display:none;">
+    <h3 id="currentRestaurant"></h3>
+
+    <textarea id="commentInput" placeholder="輸入用餐心得..."></textarea>
+    <button id="submitReview">送出評論</button>
+
+    <ul id="reviewsUl"></ul>
+  </div>
+</section>
+
+<!-- ======================
+      收藏側欄
+======================= -->
+<button id="toggleFavorites">☰ 收藏</button>
+
+<div id="favoriteSidebar">
+  <h3>我的收藏</h3>
+  <ul id="favoritesUl"></ul>
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+/* ===================== CONFIG ===================== */
+/* 把這個換成你 Apps Script 的 Web App URL */
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx32iTp3adVpgt-ErNrWjV6et-1TbxdoCOglmV-J2nNFA9s_GnrDUCPzYjw-NESBwlV/exec";
+/* ================================================== */
+
+/* -------------------- helper: post to backend -------------------- */
+async function postAPI(payload) {
+  try {
+    const res = await fetch(WEB_APP_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      mode: 'cors',
+      body: JSON.stringify(payload)
+    });
+    return await res.json();
+  } catch (err) {
+    console.error('postAPI error', err);
+    return { ok: false, error: err.message || String(err) };
+  }
+}
+
+/* ===================== 地圖初始化（Leaflet） ===================== */
+const defaultCenter = [25.033, 121.565]; // 台北中心作為預設
+let map = L.map('map').setView(defaultCenter, 12);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+let mapFilter = L.map('mapFilter').setView(defaultCenter, 12);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(mapFilter);
+
+let mapCustom = L.map('mapCustom').setView(defaultCenter, 12);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(mapCustom);
+
+/* marker holders */
+let singleMarker = null;
+let filterMarkers = [];
+let customMarkers = [];
+
+/* -------------------- UI helpers -------------------- */
+function showSection(id){
+  document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById(id);
+  if (el) el.classList.add('active');
+}
+
+/* -------------------- city/district data & helpers -------------------- */
+const districts = {
+  "台北市":["北投區","士林區","中山區","內湖區","大同區","松山區","大安區","信義區","南港區","中正區","萬華區","文山區"],
+  "新北市":["板橋區","新莊區","中和區","永和區","三重區","蘆洲區","淡水區","三峽區"],
+  "桃園市":["桃園區","中壢區","平鎮區","八德區","蘆竹區"],
+  "台中市":["北區","西區","南區","東區","西屯區"],
+  "台南市":["中西區","東區","南區","北區"],
+  "高雄市":["鹽埕區","鼓山區","左營區","楠梓區","小港區"]
+};
+
+function updateDistricts(){
+  const city = document.getElementById('citySelect').value;
+  const sel = document.getElementById('districtSelect');
+  sel.innerHTML = '<option value="">全部</option>';
+  if (city && districts[city]) {
+    districts[city].forEach(d => {
+      const o = document.createElement('option'); o.value = d; o.textContent = d; sel.appendChild(o);
+    });
+  } else {
+    sel.innerHTML = '<option value="">請先選擇城市</option>';
+  }
+}
+function updateCustomDistricts(){
+  const city = document.getElementById('customCity').value;
+  const sel = document.getElementById('customDistrict');
+  sel.innerHTML = '<option value="">全部</option>';
+  if (city && districts[city]) {
+    districts[city].forEach(d => {
+      const o = document.createElement('option'); o.value = d; o.textContent = d; sel.appendChild(o);
+    });
+  } else {
+    sel.innerHTML = '<option value="">請先選擇城市</option>';
+  }
+}
+function checkOtherType(){
+  const main = document.getElementById('mainType').value;
+  document.getElementById('otherInputLabel').style.display = main === '其他' ? 'block' : 'none';
+}
+
+/* ===================== Authentication & Favorites ===================== */
+let loggedIn = false;
+let currentUser = null;
+const welcomeText = document.getElementById('welcomeText');
+const loginBtn = document.getElementById('loginBtn');
+
+loginBtn.addEventListener('click', async () => {
+  if (!loggedIn) {
+    const name = prompt('請輸入帳號 (username)');
+    if (!name) return;
+    const pw = prompt('請輸入密碼');
+    if (!pw) return;
+    // 先嘗試 login
+    let res = await postAPI({ action: 'login', username: name, password: pw });
+    if (res && res.ok) {
+      loggedIn = true; currentUser = name;
+      welcomeText.textContent = `您好, ${name}`; loginBtn.textContent = '登出';
+      loadFavoritesForCurrentUser();
+      alert('登入成功');
+      return;
+    }
+    // 若 login 失敗，嘗試註冊
+    res = await postAPI({ action: 'register', username: name, password: pw });
+    if (res && res.ok) {
+      loggedIn = true; currentUser = name;
+      welcomeText.textContent = `您好, ${name}`; loginBtn.textContent = '登出';
+      loadFavoritesForCurrentUser();
+      alert('已註冊並登入');
+      return;
+    }
+    alert('登入/註冊失敗：' + (res.error || JSON.stringify(res)));
+  } else {
+    // logout
+    loggedIn = false; currentUser = null;
+    welcomeText.textContent = '未登入'; loginBtn.textContent = '登入';
+    document.getElementById('favoritesUl').innerHTML = '';
+    alert('已登出');
+  }
+});
+
+async function addToFavorites(place) {
+  if (!loggedIn) return alert('請先登入才能收藏');
+  const resp = await postAPI({ action: 'addFavorite', username: currentUser, place });
+  if (resp && resp.ok) {
+    alert('已加入收藏');
+    loadFavoritesForCurrentUser();
+  } else {
+    alert('加入收藏失敗：' + (resp.error || JSON.stringify(resp)));
+  }
+}
+
+async function loadFavoritesForCurrentUser() {
+  if (!loggedIn) return;
+  const resp = await postAPI({ action: 'getFavorites', username: currentUser });
+  const ul = document.getElementById('favoritesUl');
+  ul.innerHTML = '';
+  if (resp && resp.ok && Array.isArray(resp.favorites)) {
+    resp.favorites.forEach(f => {
+      const li = document.createElement('li');
+      li.innerHTML = `<span>${f.name} — ${f.address || ''}</span>
+                      <button style="margin-left:8px" onclick='removeFavorite("${f.name.replace(/"/g,"\\\"")}")'>移除</button>`;
+      ul.appendChild(li);
+    });
+  }
+}
+
+async function removeFavorite(name) {
+  if (!loggedIn) return alert('請先登入');
+  const resp = await postAPI({ action: 'removeFavorite', username: currentUser, name });
+  if (resp && resp.ok) {
+    loadFavoritesForCurrentUser();
+  } else {
+    alert('刪除失敗');
+  }
+}
+
+/* ===================== 隨機抽選（呼叫 Gemin i via backend recommend） ===================== */
+async function randomRecommend() {
+  // 收集條件
+  const city = document.getElementById('citySelect').value;
+  const district = document.getElementById('districtSelect').value;
+  const mainType = document.getElementById('mainType').value;
+  const otherType = document.getElementById('otherInput').value;
+  const tastes = Array.from(document.querySelectorAll('#tasteChecks input[type=checkbox]:checked')).map(i=>i.value);
+  const prices = Array.from(document.querySelectorAll('#priceChecks input[type=checkbox]:checked')).map(i=>i.value);
+
+  const queryType = mainType === '其他' && otherType ? otherType : (mainType || '');
+
+  const options = {
+    mode: 'random',
+    city, district,
+    mainType: queryType,
+    tastes, prices
+  };
+
+  // UI
+  const recDiv = document.getElementById('recommendation');
+  recDiv.innerHTML = '請稍候，正在使用 Gemini 生成推薦...';
+
+  const resp = await postAPI({ action: 'recommend', options });
+  if (!resp || !resp.ok) {
+    recDiv.innerHTML = '推薦失敗：' + (resp ? (resp.error || JSON.stringify(resp)) : '無回應');
+    return;
+  }
+
+  const list = resp.restaurants;
+  if (!Array.isArray(list) || list.length === 0) {
+    recDiv.innerHTML = '沒有結果';
+    return;
+  }
+
+  // 從生成清單中隨機挑一間顯示、並在地圖上標記
+  const choice = list[Math.floor(Math.random()*list.length)];
+  renderSingleRecommendation(choice);
+}
+
+/* 顯示單一推薦 (random) */
+function renderSingleRecommendation(choice) {
+  const recDiv = document.getElementById('recommendation');
+  recDiv.innerHTML = '';
+  if (!choice) { recDiv.innerHTML = '沒有推薦'; return; }
+  const title = document.createElement('h3'); title.textContent = choice.name || 'Unnamed';
+  const p = document.createElement('p'); p.innerHTML = `${choice.address || ''} ${choice.price ? '｜' + choice.price : ''}<br>${choice.reason || ''}`;
+  const favBtn = document.createElement('button'); favBtn.textContent = '★ 收藏'; favBtn.onclick = () => addToFavorites({
+    name: choice.name, address: choice.address, lat: choice.lat, lng: choice.lng
+  });
+
+  recDiv.appendChild(title); recDiv.appendChild(p); recDiv.appendChild(favBtn);
+
+  // map
+  if (singleMarker) {
+    map.removeLayer(singleMarker);
+    singleMarker = null;
+  }
+  if (choice.lat && choice.lng) {
+    singleMarker = L.marker([choice.lat, choice.lng]).addTo(map).bindPopup(`<b>${choice.name}</b><br>${choice.address || ''}`).openPopup();
+    map.setView([choice.lat, choice.lng], 15);
+  } else {
+    // 如果沒有座標，嘗試不改變地圖並顯示提示
+    map.setView(defaultCenter, 12);
+  }
+}
+
+/* ===================== 分類篩選（顯示多筆） ===================== */
+async function filterCategory(category) {
+  const city = document.getElementById('citySelect').value;
+  const district = document.getElementById('districtSelect').value;
+  const options = { mode: 'category', category, city, district };
+
+  const listDiv = document.getElementById('restaurantList');
+  listDiv.innerHTML = '搜尋中（由 Gemini 生成）...';
+
+  const resp = await postAPI({ action: 'recommend', options });
+  if (!resp || !resp.ok) {
+    listDiv.innerHTML = '搜尋失敗：' + (resp ? (resp.error || JSON.stringify(resp)) : '無回應');
+    return;
+  }
+  const list = resp.restaurants || [];
+  listDiv.innerHTML = '';
+
+  // 清除原本 markers
+  filterMarkers.forEach(m => mapFilter.removeLayer(m));
+  filterMarkers = [];
+
+  if (list.length === 0) {
+    listDiv.innerHTML = '<li>無結果</li>';
+    return;
+  }
+
+  list.forEach(p => {
+    const li = document.createElement('li');
+    li.innerHTML = `<span style="display:block">${p.name} ${p.price ? '｜' + p.price : ''} <br><small>${p.address || ''}</small></span>
+                    <button style="margin-left:8px">收藏</button>`;
+    // button onclick
+    const btn = li.querySelector('button');
+    btn.onclick = () => addToFavorites({ name: p.name, address: p.address, lat: p.lat, lng: p.lng });
+
+    listDiv.appendChild(li);
+
+    if (p.lat && p.lng) {
+      const m = L.marker([p.lat, p.lng]).addTo(mapFilter).bindPopup(`<b>${p.name}</b><br>${p.address || ''}`);
+      filterMarkers.push(m);
+    }
+  });
+
+  // 聚焦到第一個有座標的點
+  const first = list.find(x => x.lat && x.lng);
+  if (first) mapFilter.setView([first.lat, first.lng], 13);
+}
+
+/* ===================== 自訂需求（free text） ===================== */
+async function customSearch() {
+  const city = document.getElementById('customCity').value;
+  const district = document.getElementById('customDistrict').value;
+  const freeText = document.getElementById('freeText').value.trim();
+  if (!freeText) return alert('請輸入需求');
+
+  const options = { mode: 'custom', city, district, query: freeText };
+
+  const resultsDiv = document.getElementById('customResults');
+  resultsDiv.innerHTML = '搜尋中（由 Gemini 生成）...';
+
+  const resp = await postAPI({ action: 'recommend', options });
+  if (!resp || !resp.ok) {
+    resultsDiv.innerHTML = '搜尋失敗：' + (resp ? (resp.error || JSON.stringify(resp)) : '無回應');
+    return;
+  }
+
+  const list = resp.restaurants || [];
+  resultsDiv.innerHTML = '';
+
+  // 清掉 custom markers
+  customMarkers.forEach(m => mapCustom.removeLayer(m));
+  customMarkers = [];
+
+  if (list.length === 0) {
+    resultsDiv.innerHTML = '<div>無結果</div>';
+    return;
+  }
+
+  list.forEach(p => {
+    const el = document.createElement('div');
+    el.style.borderBottom = '1px solid #f4c095';
+    el.style.padding = '8px 0';
+    el.innerHTML = `<strong>${p.name}</strong><div>${p.address || ''}</div><div style="font-size:0.9rem;">${p.reason || ''}</div>
+                    <button style="margin-top:6px">收藏</button>`;
+    const btn = el.querySelector('button');
+    btn.onclick = () => addToFavorites({ name: p.name, address: p.address, lat: p.lat, lng: p.lng });
+    resultsDiv.appendChild(el);
+
+    if (p.lat && p.lng) {
+      const m = L.marker([p.lat, p.lng]).addTo(mapCustom).bindPopup(`<b>${p.name}</b><br>${p.address || ''}`);
+      customMarkers.push(m);
+    }
+  });
+
+  const first = list.find(x => x.lat && x.lng);
+  if (first) mapCustom.setView([first.lat, first.lng], 13);
+}
+
+/* ===================== 留言區（簡單 localStorage） ===================== */
+document.getElementById('searchBtn').addEventListener('click', () => {
+  const name = document.getElementById('searchRestaurant').value.trim();
+  if (!name) return alert('請輸入餐廳名稱');
+  document.getElementById('currentRestaurant').textContent = name;
+  document.getElementById('reviewArea').style.display = 'block';
+  renderReviews(name);
+});
+
+function renderReviews(name) {
+  const arr = JSON.parse(localStorage.getItem('reviews_' + name) || '[]');
+  const ul = document.getElementById('reviewsUl');
+  ul.innerHTML = '';
+  arr.forEach((r, idx) => {
+    const li = document.createElement('li');
+    li.textContent = `${r.username || '訪客'}: ${r.comment}`;
+    if (r.username === currentUser) {
+      const btn = document.createElement('button'); btn.textContent = '刪除'; btn.style.marginLeft = '8px';
+      btn.onclick = () => {
+        arr.splice(idx,1);
+        localStorage.setItem('reviews_' + name, JSON.stringify(arr));
+        renderReviews(name);
+      };
+      li.appendChild(btn);
+    }
+    ul.appendChild(li);
+  });
+}
+
+document.getElementById('submitReview').addEventListener('click', () => {
+  const name = document.getElementById('currentRestaurant').textContent;
+  if (!name) return alert('請先搜尋餐廳');
+  const comment = document.getElementById('commentInput').value.trim();
+  if (!comment) return alert('請輸入留言');
+  const arr = JSON.parse(localStorage.getItem('reviews_' + name) || '[]');
+  arr.push({ username: loggedIn ? currentUser : '訪客', comment, createdAt: Date.now() });
+  localStorage.setItem('reviews_' + name, JSON.stringify(arr));
+  document.getElementById('commentInput').value = '';
+  renderReviews(name);
+});
+
+/* ===================== 初始化一些 UI ===================== */
+updateDistricts();
+updateCustomDistricts();
+
+/* ----------------- favorite sidebar toggle ----------------- */
+document.getElementById('toggleFavorites').addEventListener('click', () => {
+  document.getElementById('favoriteSidebar').classList.toggle('active');
+});
+</script>
+</body>
+</html>
