@@ -351,20 +351,16 @@ button:hover { background-color: #f79465; }
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
 /* ===================== CONFIG ===================== */
-/* 把這個換成你 Apps Script 的 Web App URL */
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx32iTp3adVpgt-ErNrWjV6et-1TbxdoCOglmV-J2nNFA9s_GnrDUCPzYjw-NESBwlV/exec";
-/* ================================================== */
-
-/* -------------------- helper: post to backend -------------------- */
 async function postAPI(payload) {
   try {
-    const res = await fetch(WEB_APP_URL, {
+    const res = await fetch("http://localhost:3000/gemini", { //呼叫proxy server
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       mode: 'cors',
       body: JSON.stringify(payload)
     });
-    return await res.json();
+    const data = await res.text(); //回傳json物件
+    return JSON.parse(data);
   } catch (err) {
     console.error('postAPI error', err);
     return { ok: false, error: err.message || String(err) };
