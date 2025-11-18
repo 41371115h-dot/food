@@ -7,8 +7,6 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
 <style>
-/* -------------------- 你的原始樣式（未修改） -------------------- */
-
 body {
   font-family: "Noto Sans TC", sans-serif;
   background: #fff8f0;
@@ -114,13 +112,16 @@ select:focus, input[type="text"]:focus {
 }
 
 .checkbox-group label {
-  background: #fff0e6;
-  border-radius: 8px;
+  display: inline-flex;        /* 讓 checkbox 和文字水平排列 */
+  align-items: center;         /* 垂直置中 */
+  gap: 6px;                    /* checkbox 和文字的距離 */
   padding: 6px 12px;
+  border-radius: 8px;
   cursor: pointer;
-  color: #4a3b2c;
   border: 1px solid #f4c095;
-  transition: background 0.3s;
+  background: #fff0e6;
+  white-space: nowrap;         /* 🔥 防止換行 */
+  width: auto;                 /* 🔥 讓框框固定在最適寬度，不會亂撐 */
 }
 
 .checkbox-group label:hover { background: #ffe3d1; }
@@ -144,12 +145,86 @@ button:hover { background-color: #f79465; }
   border-radius: 12px;
 }
 
+/* 登入區 */
+#loginArea {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 9999; /* 調高到最上層 */
+  background: #f4c095;
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: 1px solid #f58b54;
+  display: flex;
+  flex-direction: column;  /* 先上下排列 */
+  align-items: flex-start; /* 文字靠左 */
+}
+
+#loginArea .buttons {
+  display: flex;       /* 讓按鈕水平排列 */
+  gap: 5px;            /* 按鈕間距 */
+}
+
+/* Modal 背景 */
+.modal {
+  display: none;
+  position: fixed;
+  top:0; left:0; width:100%; height:100%;
+  background: rgba(0,0,0,0.5);
+  justify-content: center;
+  align-items: center;
+  z-index: 10000; /* Modal 永遠在登入區之上 */
+}
+
+/* Modal 內容 */
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  min-width: 300px;
+  position: relative;
+  z-index: 10001; /* 確保按鈕、框框在最上層 */
+}
+
+/* 帳號密碼框 */
+.modal-content input {
+  background-color: white;
+  border: 1px solid black;
+  border-radius: 4px;
+  padding: 5px;
+  width: 100%;
+  height: 30px;
+  outline: none;
+  box-sizing: border-box;
+  font-size: 14px;
+}
+
+.modal-content input:focus {
+  border: 1px solid black;
+  box-shadow: none;
+}
+
+/* Modal 按鈕 */
+.modal-content button {
+  background: #f58b54;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.close {
+  position: absolute; top: 8px; right: 12px; cursor: pointer; font-size: 20px;
+}
+input { width: 90%; padding: 5px; margin-bottom: 10px; }
+button { padding: 5px 10px; }
+
 /* 收藏側欄 */
 #toggleFavorites {
   position: fixed;
-  top: 70px;
+  top: 90px;
   left: 20px;
-  background-color: #ff8c42;
+  background-color: #ff8c42; /* 橘色主題 */
   color: white;
   border: none;
   border-radius: 8px;
@@ -157,6 +232,14 @@ button:hover { background-color: #f79465; }
   font-size: 18px;
   cursor: pointer;
   z-index: 1100;
+  width: auto;       /* 🔸不被拉滿 */
+  height: auto;      /* 🔸高度自動 */
+  display: inline-block;
+  transition: background 0.3s;
+}
+
+#toggleFavorites:hover {
+  background-color: #ff7b2e;
 }
 
 #favoriteSidebar {
@@ -171,21 +254,154 @@ button:hover { background-color: #f79465; }
   padding: 150px 20px 20px 20px;
 }
 
+#favoriteSidebar h3 {
+  color: #ff8c42;
+  margin-bottom: 10px;
+  font-weight: bold;
+  /* 可以額外加 margin-top 微調 */
+  margin-top: 20px; 
+}
+
 #favoriteSidebar.active { left: 0; }
 
 #favoriteSidebar ul { list-style: none; padding: 0; }
 
-/* 留言區 */
-#reviewArea { margin-top: 20px; }
+#favoriteSidebar li {
+    display: flex;
+    justify-content: space-between; /* 文字靠左，按鈕靠右 */
+    align-items: flex-start;        /* 元素靠上對齊 */
+    padding: 6px 0;
+    border-bottom: 1px solid #f4c095;
+  }
 
+  /* 文字稍微下移 */
+  #favoriteSidebar li span {
+    display: inline-block;
+    transform: translateY(6px); /* 調整數值可微調文字高度 */
+  }
+
+  /* 刪除按鈕維持原位 */
+  #favoritesUl li button {
+    font-size: 1.1rem;
+    cursor: pointer;
+  }
+
+  .category-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+
+  .category-buttons button {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #f4c095;
+    background: #fff0e6;
+    color: #4a3b2c;
+    cursor: pointer;
+    transition: 0.3s;
+    }
+
+  .category-buttons button:hover {
+    background: #ffe3d1;
+  }
+
+  #restaurantList li {
+    padding: 8px;
+    border-bottom: 1px solid #f4c095;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  #searchArea input {
+    padding: 5px;
+    width: 250px;
+    margin-right: 10px;
+  }
+
+/* 留言區 */
+#reviewArea {
+    margin-top: 20px;
+  }
+
+  .rating-group {
+    margin-bottom: 10px;
+  }
+
+  .rating-row {
+    margin-bottom: 5px;
+  }
+
+  .stars {
+    display: inline-block;
+    cursor: pointer;
+    color: gold;
+  }
+
+  .stars span {
+    font-size: 24px;
+    cursor: pointer;
+    color: lightgray; /* 初始灰色 */
+    transition: color 0.2s;
+  }
+
+  .stars span:hover,
+  .stars span:hover ~ span {
+    color: gold; /* 滑鼠滑過效果 */
+  }
+
+  #reviewsUl li {
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between; /* 🔥 左右兩邊靠最邊 */
+    align-items: center;            /* 垂直置中 */
+    padding: 6px 0;
+  }
+
+  #reviewsUl button {
+    margin-left: 10px;
+    cursor: pointer;
+    width: 80px; 
+    background: rgb(252, 86, 86);
+  }
 </style>
 </head>
 <body>
 
-<!-- 左上角登入區 -->
-<div id="loginArea" style="position: fixed; top: 10px; left: 10px; z-index: 10; background: #f4c095; padding: 5px 10px; border-radius: 8px; border: 1px solid #f58b54;">
+<!-- 登入區 -->
+<div id="loginArea">
   <span id="welcomeText">未登入</span>
-  <button id="loginBtn" style="margin-left: 10px;">登入</button>
+  <div class="buttons">
+    <button id="loginBtn">登入</button>
+    <button id="registerBtn">註冊</button>
+  </div>
+</div>
+
+<!-- 登入 Modal -->
+<div id="loginModal" class="modal" onclick="clickOutside(event,'loginModal')">
+  <div class="modal-content">
+    <span class="close" onclick="closeLoginModal()">&times;</span>
+    <h2>登入</h2>
+    <input type="text" id="loginUsername" placeholder="帳號"><br>
+    <input type="password" id="loginPassword" placeholder="密碼"><br>
+    <button onclick="login()">登入</button>
+    <p>沒有帳號？<a href="#" onclick="openRegister()">註冊</a></p>
+  </div>
+</div>
+
+<!-- 註冊 Modal -->
+<div id="registerModal" class="modal" onclick="clickOutside(event,'registerModal')">
+  <div class="modal-content">
+    <span class="close" onclick="closeRegisterModal()">&times;</span>
+    <h2>註冊</h2>
+    <input type="text" id="registerUsername" placeholder="帳號"><br>
+    <input type="password" id="registerPassword" placeholder="密碼"><br>
+    <input type="password" id="registerPasswordConfirm" placeholder="確認密碼"><br>
+    <button onclick="register()">註冊</button>
+    <p>已有帳號？<a href="#" onclick="openLogin()">登入</a></p>
+  </div>
 </div>
 
 <div class="hero">
@@ -196,7 +412,7 @@ button:hover { background-color: #f79465; }
   <a href="#" onclick="showSection('random')">隨機抽選</a>
   <a href="#" onclick="showSection('filter')">分類篩選</a>
   <a href="#" onclick="showSection('custom')">輸入需求</a>
-  <a href="#" onclick="showSection('content')">網友留言區</a>
+  <a href="#" onclick="showSection('comment')">網友留言區</a>
 </header>
 
 <!-- ======================
@@ -209,12 +425,28 @@ button:hover { background-color: #f79465; }
     <label>城市：
       <select id="citySelect" onchange="updateDistricts()">
         <option value="">請選擇城市</option>
-        <option value="台北市">台北市</option>
-        <option value="新北市">新北市</option>
-        <option value="桃園市">桃園市</option>
-        <option value="台中市">台中市</option>
-        <option value="台南市">台南市</option>
-        <option value="高雄市">高雄市</option>
+        <option value="keelung">基隆市</option>
+        <option value="newtaipei">新北市</option>
+        <option value="taipei">台北市</option>
+        <option value="taoyuan">桃園市</option>
+        <option value="hsinchucity">新竹市</option>
+        <option value="hsinchucounty">新竹縣</option>
+        <option value="yilan">宜蘭縣</option>
+        <option value="miaoli">苗栗縣</option>
+        <option value="taichung">台中市</option>
+        <option value="changhua">彰化縣</option>
+        <option value="nantou">南投縣</option>
+        <option value="yunlin">雲林縣</option>
+        <option value="chiayicity">嘉義市</option>
+        <option value="chiayicounty">嘉義縣</option>
+        <option value="tainan">台南市</option>
+        <option value="kaohsiung">高雄市</option>
+        <option value="pingtung">屏東縣</option>
+        <option value="hualien">花蓮縣</option>
+        <option value="taitung">台東縣</option>
+        <option value="penghu">澎湖縣</option>
+        <option value="kinmen">金門縣</option>
+        <option value="lienchiang">連江縣</option>
       </select>
     </label>
 
@@ -292,12 +524,28 @@ button:hover { background-color: #f79465; }
   <label>城市：
     <select id="customCity" onchange="updateCustomDistricts()">
       <option value="">請選擇城市</option>
-      <option value="台北市">台北市</option>
-      <option value="新北市">新北市</option>
-      <option value="桃園市">桃園市</option>
-      <option value="台中市">台中市</option>
-      <option value="台南市">台南市</option>
-      <option value="高雄市">高雄市</option>
+      <option value="keelung">基隆市</option>
+      <option value="newtaipei">新北市</option>
+      <option value="taipei">台北市</option>
+      <option value="taoyuan">桃園市</option>
+      <option value="hsinchucity">新竹市</option>
+      <option value="hsinchucounty">新竹縣</option>
+      <option value="yilan">宜蘭縣</option>
+      <option value="miaoli">苗栗縣</option>
+      <option value="taichung">台中市</option>
+      <option value="changhua">彰化縣</option>
+      <option value="nantou">南投縣</option>
+      <option value="yunlin">雲林縣</option>
+      <option value="chiayicity">嘉義市</option>
+      <option value="chiayicounty">嘉義縣</option>
+      <option value="tainan">台南市</option>
+      <option value="kaohsiung">高雄市</option>
+      <option value="pingtung">屏東縣</option>
+      <option value="hualien">花蓮縣</option>
+      <option value="taitung">台東縣</option>
+      <option value="penghu">澎湖縣</option>
+      <option value="kinmen">金門縣</option>
+      <option value="lienchiang">連江縣</option>
     </select>
   </label>
 
@@ -320,22 +568,43 @@ button:hover { background-color: #f79465; }
 <!-- ======================
       網友留言區
 ======================= -->
-<section id="content">
+<section id="comment">
   <h2>網友留言區</h2>
 
-  <div id="searchArea">
-    <input type="text" id="searchRestaurant" placeholder="輸入餐廳名稱，例如：阿宗麵線">
-    <button id="searchBtn">搜尋評論</button>
-  </div>
+  <!-- 🔍 搜尋餐廳 -->
+    <div id="searchArea">
+      <input type="text" id="searchRestaurant" placeholder="輸入餐廳名稱，例如：阿宗麵線">
+      <button id="searchBtn">搜尋評論</button>
+    </div>
 
-  <div id="reviewArea" style="display:none;">
-    <h3 id="currentRestaurant"></h3>
+    <!-- ✏️ 留言輸入區 -->
+    <div id="reviewArea" style="display:none;">
+      <h3 id="currentRestaurant" style="text-align:center; color:#ff8c42;"></h3>
 
-    <textarea id="commentInput" placeholder="輸入用餐心得..."></textarea>
-    <button id="submitReview">送出評論</button>
+      <div class="rating-group">
+        <div class="rating-row">
+          <span>口味：</span><div class="stars" data-category="taste">★★★★★</div>
+        </div>
+        <div class="rating-row">
+          <span>服務：</span><div class="stars" data-category="service">★★★★★</div>
+        </div>
+        <div class="rating-row">
+          <span>環境：</span><div class="stars" data-category="environment">★★★★★</div>
+        </div>
+        <div class="rating-row">
+          <span>價位：</span><div class="stars" data-category="price">★★★★★</div>
+        </div>
+      </div>
 
-    <ul id="reviewsUl"></ul>
-  </div>
+      <textarea id="commentInput" placeholder="輸入您的用餐心得..."></textarea>
+      <button id="submitReview">送出評論</button>
+
+      <!-- 💬 評論列表 -->
+      <div id="reviewList">
+        <h3>🍊 網友留言</h3>
+        <ul id="reviewsUl"></ul>
+      </div>
+    </div>
 </section>
 
 <!-- ======================
@@ -398,13 +667,38 @@ function showSection(id){
 
 /* -------------------- city/district data & helpers -------------------- */
 const districts = {
-  "台北市":["北投區","士林區","中山區","內湖區","大同區","松山區","大安區","信義區","南港區","中正區","萬華區","文山區"],
-  "新北市":["板橋區","新莊區","中和區","永和區","三重區","蘆洲區","淡水區","三峽區"],
-  "桃園市":["桃園區","中壢區","平鎮區","八德區","蘆竹區"],
-  "台中市":["北區","西區","南區","東區","西屯區"],
-  "台南市":["中西區","東區","南區","北區"],
-  "高雄市":["鹽埕區","鼓山區","左營區","楠梓區","小港區"]
-};
+      keelung: ['仁愛區', '信義區', '中正區', '中山區', '安樂區', '暖暖區', '七堵區'],
+      taipei: ['北投區', '士林區', '中山區', '內湖區', '大同區', '松山區', '大安區', '信義區', '南港區', '中正區', '萬華區', '文山區'],
+      newtaipei: ['板橋區', '新莊區', '中和區', '永和區', '土城區', '樹林區', '三峽區', '鶯歌區', '三重區', '蘆洲區', '五股區', '泰山區',
+                '林口區', '八里區', '淡水區', '三芝區', '石門區', '金山區', '萬里區', '汐止區', '瑞芳區', '貢寮區', '平溪區', '雙溪區', '新店區',
+                '深坑區', '石碇區', '坪林區', '烏來區'],
+      taoyuan: ['桃園區', '中壢區', '平鎮區', '八德區', '楊梅區', '蘆竹區', '大溪區', '龍潭區', '龜山區', '大園區', '觀音區', '新屋區', '復興區'],
+      hsinchucity: ['東區', '北區', '香山區'],
+      hsinchucounty: ['竹北市', '竹東鎮', '新埔鎮', '關西鎮', '湖口鄉', '新豐鄉', '芎林鄉', '橫山鄉', '北埔鄉', '寶山鄉', '峨眉鄉', '尖石鄉', '五峰鄉'],
+      yilan: ['宜蘭市', '羅東鎮', '蘇澳鎮', '頭城鎮', '礁溪鄉', '壯圍鄉', '員山鄉', '冬山鄉', '五結鄉', '三星鄉', '大同鄉', '南澳鄉'],
+      miaoli: ['苗栗市', '頭份市', '苑裡鎮', '通霄鎮', '竹南鎮', '後龍鎮', '卓蘭鎮', '大湖鄉', '公館鄉', '銅鑼鄉', '南庄鄉', '頭屋鄉', '三義鄉', '西湖鄉', '造橋鄉', '三灣鄉', '獅潭鄉', '泰安鄉'],
+      taichung: ['中區', '東區', '南區', '西區', '北區', '北屯區', '西屯區', '南屯區', '太平區', '大里區', '霧峰區', '烏日區', '豐原區', '后里區', '石岡區',
+                 '東勢區', '和平區', '新社區', '潭子區', '大雅區', '神岡區', '大肚區', '沙鹿區', '龍井區', '梧棲區', '清水區', '大甲區', '外埔區', '大安區'],
+      changhua: ['彰化市', '員林市', '和美鎮', '鹿港鎮', '溪湖鎮', '二林鎮', '田中鎮', '北斗鎮', '花壇鄉', '芬園鄉', '大村鄉', '永靖鄉', '伸港鄉', '線西鄉',
+                 '福興鄉', '秀水鄉', '埔心鄉', '埔鹽鄉', '大城鄉', '竹塘鄉', '溪州鄉', '田尾鄉', '埤頭鄉', '芳苑鄉', '社頭鄉', '二水鄉'],
+      nantou: ['南投市', '埔里鎮', '草屯鎮', '竹山鎮', '集集鎮', '名間鄉', '鹿谷鄉', '中寮鄉', '魚池鄉', '國姓鄉', '水里鄉', '信義鄉', '仁愛鄉'],
+      yunlin: ['斗六市', '斗南鎮', '虎尾鎮', '西螺鎮', '土庫鎮', '北港鎮', '莿桐鄉', '林內鄉', '古坑鄉', '大埤鄉', '二崙鄉', '崙背鄉', '麥寮鄉', '東勢鄉', '褒忠鄉', '台西鄉', '元長鄉', '四湖鄉', '口湖鄉', '水林鄉'],
+      chiayicity: ['東區', '西區'],
+      chiayicounty: ['太保市', '朴子市', '布袋鎮', '大林鎮', '民雄鄉', '溪口鄉', '新港鄉', '六腳鄉', '東石鄉', '義竹鄉', '鹿草鄉', '水上鄉', '中埔鄉', '竹崎鄉', '梅山鄉', '番路鄉', '大埔鄉', '阿里山鄉'],
+      tainan: ['中西區', '東區', '南區', '北區', '安平區', '安南區', '永康區', '歸仁區', '新化區', '左鎮區', '玉井區', '楠西區', '南化區', '仁德區', '關廟區',
+             '龍崎區', '官田區', '麻豆區', '佳里區', '西港區', '七股區', '將軍區', '學甲區', '北門區', '新營區', '後壁區', '白河區', '東山區', '六甲區', '下營區',
+              '柳營區', '鹽水區', '善化區', '大內區', '山上區', '新市區', '安定區'],
+      kaohsiung: ['新興區', '前金區', '苓雅區', '鹽埕區', '鼓山區', '旗津區', '前鎮區', '三民區', '楠梓區', '小港區', '左營區', '仁武區', '大社區', '岡山區', '路竹區',
+                '阿蓮區', '田寮區', '燕巢區', '橋頭區', '梓官區', '彌陀區', '永安區', '湖內區', '鳳山區', '大寮區', '林園區', '鳥松區', '大樹區', '旗山區', '美濃區', '六龜區',
+                 '內門區', '杉林區', '甲仙區', '桃源區', '那瑪夏區', '茂林區', '茄萣區'],
+      pingtung: ['屏東市', '潮州鎮', '東港鎮', '恆春鎮', '萬丹鄉', '長治鄉', '麟洛鄉', '九如鄉', '里港鄉', '鹽埔鄉', '高樹鄉', '萬巒鄉', '內埔鄉', '竹田鄉', '新埤鄉', '枋寮鄉',
+                 '枋山鄉', '春日鄉', '獅子鄉', '車城鄉', '牡丹鄉', '恆春鄉', '滿州鄉', '三地門鄉', '霧台鄉', '瑪家鄉', '泰武鄉', '來義鄉', '南州鄉', '佳冬鄉', '林邊鄉', '東港鄉', '琉球鄉', '枋山鄉', '車城鄉'],
+      hualien: ['花蓮市', '玉里鎮', '新城鄉', '吉安鄉', '壽豐鄉', '鳳林鎮', '光復鄉', '豐濱鄉', '瑞穗鄉', '萬榮鄉', '富里鄉', '卓溪鄉'],
+      taitung: ['台東市', '成功鎮', '關山鎮', '長濱鄉', '海端鄉', '池上鄉', '東河鄉', '鹿野鄉', '延平鄉', '卑南鄉', '金峰鄉', '大武鄉', '達仁鄉', '綠島鄉', '蘭嶼鄉', '太麻里鄉'],
+      penghu: ['馬公市', '湖西鄉', '白沙鄉', '西嶼鄉', '望安鄉', '七美鄉'],
+      kinmen: ['金沙鎮', '金湖鎮', '金寧鄉', '金城鎮', '烈嶼鄉', '烏坵鄉'],
+      lienchiang: ['南竿鄉', '北竿鄉', '莒光鄉', '東引鄉']
+    };
 
 function updateDistricts(){
   const city = document.getElementById('citySelect').value;
@@ -438,42 +732,61 @@ function checkOtherType(){
 /* ===================== Authentication & Favorites ===================== */
 let loggedIn = false;
 let currentUser = null;
-const welcomeText = document.getElementById('welcomeText');
-const loginBtn = document.getElementById('loginBtn');
+let users = {}; // 模擬帳號資料庫
+let userFavorites = {}; // 使用者收藏
 
-loginBtn.addEventListener('click', async () => {
-  if (!loggedIn) {
-    const name = prompt('請輸入帳號 (username)');
-    if (!name) return;
-    const pw = prompt('請輸入密碼');
-    if (!pw) return;
-    // 先嘗試 login
-    let res = await postAPI({ action: 'login', username: name, password: pw });
-    if (res && res.ok) {
-      loggedIn = true; currentUser = name;
-      welcomeText.textContent = `您好, ${name}`; loginBtn.textContent = '登出';
-      loadFavoritesForCurrentUser();
-      alert('登入成功');
-      return;
-    }
-    // 若 login 失敗，嘗試註冊
-    res = await postAPI({ action: 'register', username: name, password: pw });
-    if (res && res.ok) {
-      loggedIn = true; currentUser = name;
-      welcomeText.textContent = `您好, ${name}`; loginBtn.textContent = '登出';
-      loadFavoritesForCurrentUser();
-      alert('已註冊並登入');
-      return;
-    }
-    alert('登入/註冊失敗：' + (res.error || JSON.stringify(res)));
-  } else {
-    // logout
-    loggedIn = false; currentUser = null;
-    welcomeText.textContent = '未登入'; loginBtn.textContent = '登入';
-    document.getElementById('favoritesUl').innerHTML = '';
-    alert('已登出');
+const loginBtn = document.getElementById('loginBtn');
+const registerBtn = document.getElementById('registerBtn');
+const welcomeText = document.getElementById('welcomeText');
+
+// Modal 開關函式
+function openLogin() { document.getElementById("loginModal").style.display="flex"; document.getElementById("registerModal").style.display="none";}
+function openRegister() { document.getElementById("registerModal").style.display="flex"; document.getElementById("loginModal").style.display="none";}
+function closeLoginModal() { document.getElementById("loginModal").style.display="none";}
+function closeRegisterModal() { document.getElementById("registerModal").style.display="none";}
+function clickOutside(event, modalId) { if(event.target.id===modalId) document.getElementById(modalId).style.display="none"; }
+
+// 註冊功能
+function register() {
+  const u = document.getElementById("registerUsername").value.trim();
+  const p = document.getElementById("registerPassword").value;
+  const p2 = document.getElementById("registerPasswordConfirm").value;
+  if(!u||!p) return alert("請輸入帳號和密碼");
+  if(p!==p2) return alert("密碼不一致");
+  if(users[u]) return alert("帳號已存在");
+  users[u]=p;
+  userFavorites[u]=[];
+  alert("註冊成功！");
+  closeRegisterModal();
+  openLogin();
+}
+
+// 登入功能
+function login() {
+  const u = document.getElementById("loginUsername").value.trim();
+  const p = document.getElementById("loginPassword").value;
+  if(!u||!p) return alert("請輸入帳號和密碼");
+  if(users[u] && users[u]===p){
+    loggedIn=true;
+    currentUser=u;
+    welcomeText.textContent=`您好, ${u}`;
+    loginBtn.textContent="登出";
+    closeLoginModal();
+  } else { alert("帳號或密碼錯誤"); }
+}
+
+// 登出按鈕
+loginBtn.onclick = () => {
+  if(!loggedIn) openLogin();
+  else {
+    loggedIn=false;
+    currentUser=null;
+    welcomeText.textContent="未登入";
+    loginBtn.textContent="登入";
+    alert("已登出");
   }
-});
+};
+registerBtn.onclick=openRegister;
 
 async function addToFavorites(place) {
   if (!loggedIn) return alert('請先登入才能收藏');
@@ -675,46 +988,105 @@ async function customSearch() {
   if (first) mapCustom.setView([first.lat, first.lng], 13);
 }
 
-/* ===================== 留言區（簡單 localStorage） ===================== */
-document.getElementById('searchBtn').addEventListener('click', () => {
-  const name = document.getElementById('searchRestaurant').value.trim();
-  if (!name) return alert('請輸入餐廳名稱');
-  document.getElementById('currentRestaurant').textContent = name;
-  document.getElementById('reviewArea').style.display = 'block';
-  renderReviews(name);
-});
+// ===== 搜尋餐廳 =====
+const searchBtn = document.getElementById("searchBtn");
+const reviewArea = document.getElementById("reviewArea");
+const currentRestaurant = document.getElementById("currentRestaurant");
+const reviewsUl = document.getElementById("reviewsUl");
 
-function renderReviews(name) {
-  const arr = JSON.parse(localStorage.getItem('reviews_' + name) || '[]');
-  const ul = document.getElementById('reviewsUl');
-  ul.innerHTML = '';
-  arr.forEach((r, idx) => {
-    const li = document.createElement('li');
-    li.textContent = `${r.username || '訪客'}: ${r.comment}`;
-    if (r.username === currentUser) {
-      const btn = document.createElement('button'); btn.textContent = '刪除'; btn.style.marginLeft = '8px';
-      btn.onclick = () => {
-        arr.splice(idx,1);
-        localStorage.setItem('reviews_' + name, JSON.stringify(arr));
-        renderReviews(name);
+searchBtn.onclick = () => {
+  const restaurantName = document.getElementById("searchRestaurant").value.trim();
+  if (!restaurantName) return alert("請輸入餐廳名稱");
+
+  currentRestaurant.innerText = restaurantName;
+  reviewArea.style.display = "block";
+
+  const reviews = JSON.parse(localStorage.getItem(restaurantName)) || [];
+  renderReviews(reviews, restaurantName);
+
+  // 重置星星顯示
+  document.querySelectorAll(".stars").forEach(starDiv => {
+    starDiv.innerHTML = "★★★★★".split("").map((_, i) => `<span data-index="${i}">★</span>`).join("");
+  });
+  document.getElementById("commentInput").value = "";
+  initStarClicks();
+};
+
+// ===== 初始化星星點擊事件 =====
+function initStarClicks() {
+  document.querySelectorAll(".stars").forEach(starDiv => {
+    const spans = starDiv.querySelectorAll("span");
+
+    // 初始化顏色為灰色
+    spans.forEach(s => s.style.color = "lightgray");
+
+    spans.forEach(span => {
+      span.onclick = () => {
+        const index = parseInt(span.dataset.index); // 取得點擊的星星位置
+        spans.forEach((s, i) => {
+          s.style.color = i <= index ? "gold" : "lightgray"; // 左邊及自己黃金色，右邊灰色
+        });
       };
-      li.appendChild(btn);
-    }
-    ul.appendChild(li);
+    });
   });
 }
 
-document.getElementById('submitReview').addEventListener('click', () => {
-  const name = document.getElementById('currentRestaurant').textContent;
-  if (!name) return alert('請先搜尋餐廳');
-  const comment = document.getElementById('commentInput').value.trim();
-  if (!comment) return alert('請輸入留言');
-  const arr = JSON.parse(localStorage.getItem('reviews_' + name) || '[]');
-  arr.push({ username: loggedIn ? currentUser : '訪客', comment, createdAt: Date.now() });
-  localStorage.setItem('reviews_' + name, JSON.stringify(arr));
-  document.getElementById('commentInput').value = '';
-  renderReviews(name);
-});
+// ===== 渲染留言列表 =====
+function renderReviews(reviews, restaurantName) {
+  reviewsUl.innerHTML = "";
+  reviews.forEach((r, index) => {
+    const li = document.createElement("li");
+    li.innerHTML = `<strong>${r.username}</strong> (口味:${r.rating.taste}⭐ / 服務:${r.rating.service}⭐ / 環境:${r.rating.environment}⭐ / 價位:${r.rating.price}⭐): ${r.comment}`;
+
+    // 刪除按鈕：登入使用者刪自己留言 OR 訪客刪自己留言
+    const currentName = loggedIn ? currentUser : "訪客";
+    if (r.username === currentName) {
+      const btn = document.createElement("button");
+      btn.innerText = "刪除";
+      btn.onclick = () => {
+        reviews.splice(index, 1);
+        localStorage.setItem(restaurantName, JSON.stringify(reviews));
+        renderReviews(reviews, restaurantName);
+      };
+      li.appendChild(btn);
+    }
+
+    reviewsUl.appendChild(li);
+  });
+}
+
+// ===== 送出留言 =====
+const submitReview = document.getElementById("submitReview");
+submitReview.onclick = () => {
+  const restaurantName = currentRestaurant.innerText;
+  const comment = document.getElementById("commentInput").value.trim();
+  if (!comment) return alert("請輸入留言內容");
+
+  // 取得評分
+  const rating = {};
+  document.querySelectorAll(".stars").forEach(starDiv => {
+    const spans = starDiv.querySelectorAll("span");
+    rating[starDiv.dataset.category] = Array.from(spans).filter(s => s.style.color === "gold").length;
+  });
+
+  const reviews = JSON.parse(localStorage.getItem(restaurantName)) || [];
+  // 使用登入名稱或訪客
+  const currentName = loggedIn ? currentUser : "訪客";
+
+  // 給留言一個隨機 ID，方便訪客刪除自己留言
+  const reviewId = Date.now() + Math.random().toString(36).substr(2, 5);
+
+  reviews.push({ id: reviewId, username: currentName, comment, rating });
+  localStorage.setItem(restaurantName, JSON.stringify(reviews));
+
+  renderReviews(reviews, restaurantName);
+  document.getElementById("commentInput").value = "";
+
+  // 重置星星
+  document.querySelectorAll(".stars").forEach(starDiv => {
+    starDiv.querySelectorAll("span").forEach(s => s.style.color = "gold");
+  });
+};
 
 /* ===================== 初始化一些 UI ===================== */
 updateDistricts();
