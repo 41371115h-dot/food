@@ -659,10 +659,17 @@ let filterMarkers = [];
 let customMarkers = [];
 
 /* -------------------- UI helpers -------------------- */
-function showSection(id){
+function showSection(id) {
   document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+
   const el = document.getElementById(id);
   if (el) el.classList.add('active');
+
+  setTimeout(() => {
+    if (window.map && id === "random") map.invalidateSize();
+    if (window.mapFilter && id === "filter") mapFilter.invalidateSize();
+    if (window.mapCustom && id === "custom") mapCustom.invalidateSize();
+  }, 100);
 }
 
 /* -------------------- city/district data & helpers -------------------- */
