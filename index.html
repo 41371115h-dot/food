@@ -66,19 +66,21 @@ header a {
 
 header a:hover { color: #f58b54; }
 
-section {
+section{
   display: none;
   padding: 2rem;
   max-width: 700px;
   margin: auto;
-  background: #fff0e6;
+  background: #fff0e6;      /* 統一背景色 */
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(245, 139, 84, 0.15);
   margin-top: 2rem;
-  border: 1px solid #f4c095;
+  border: 1px solid #f4c095;  /* 統一邊框 */
 }
 
-section.active { display: block; }
+section.active{
+  display: block;
+}
 
 h2 {
   text-align: center;
@@ -138,153 +140,12 @@ button {
 
 button:hover { background-color: #f79465; }
 
-#map, #mapFilter, #mapCustom {
+#map, #mapFilter, #mapMood, #mapCustom {
   height: 300px;
   width: 100%;
   margin-top: 10px;
   border-radius: 12px;
 }
-
-/* 登入區 */
-#loginArea {
-  position: fixed;
-  top: 10px;
-  left: 10px;
-  z-index: 9999; /* 調高到最上層 */
-  background: #f4c095;
-  padding: 5px 10px;
-  border-radius: 8px;
-  border: 1px solid #f58b54;
-  display: flex;
-  flex-direction: column;  /* 先上下排列 */
-  align-items: flex-start; /* 文字靠左 */
-}
-
-#loginArea .buttons {
-  display: flex;       /* 讓按鈕水平排列 */
-  gap: 5px;            /* 按鈕間距 */
-}
-
-/* Modal 背景 */
-.modal {
-  display: none;
-  position: fixed;
-  top:0; left:0; width:100%; height:100%;
-  background: rgba(0,0,0,0.5);
-  justify-content: center;
-  align-items: center;
-  z-index: 10000; /* Modal 永遠在登入區之上 */
-}
-
-/* Modal 內容 */
-.modal-content {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  min-width: 300px;
-  position: relative;
-  z-index: 10001; /* 確保按鈕、框框在最上層 */
-}
-
-/* 帳號密碼框 */
-.modal-content input {
-  background-color: white;
-  border: 1px solid black;
-  border-radius: 4px;
-  padding: 5px;
-  width: 100%;
-  height: 30px;
-  outline: none;
-  box-sizing: border-box;
-  font-size: 14px;
-}
-
-.modal-content input:focus {
-  border: 1px solid black;
-  box-shadow: none;
-}
-
-/* Modal 按鈕 */
-.modal-content button {
-  background: #f58b54;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.close {
-  position: absolute; top: 8px; right: 12px; cursor: pointer; font-size: 20px;
-}
-input { width: 90%; padding: 5px; margin-bottom: 10px; }
-button { padding: 5px 10px; }
-
-/* 收藏側欄 */
-#toggleFavorites {
-  position: fixed;
-  top: 90px;
-  left: 20px;
-  background-color: #ff8c42; /* 橘色主題 */
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 10px 16px;
-  font-size: 18px;
-  cursor: pointer;
-  z-index: 1100;
-  width: auto;       /* 🔸不被拉滿 */
-  height: auto;      /* 🔸高度自動 */
-  display: inline-block;
-  transition: background 0.3s;
-}
-
-#toggleFavorites:hover {
-  background-color: #ff7b2e;
-}
-
-#favoriteSidebar {
-  position: fixed;
-  top: 0; left: -300px;
-  width: 280px; height: 100%;
-  background-color: #fff8f0;
-  box-shadow: 2px 0 10px rgba(0,0,0,0.2);
-  overflow-y: auto;
-  transition: left 0.4s ease;
-  z-index: 1000;
-  padding: 150px 20px 20px 20px;
-}
-
-#favoriteSidebar h3 {
-  color: #ff8c42;
-  margin-bottom: 10px;
-  font-weight: bold;
-  /* 可以額外加 margin-top 微調 */
-  margin-top: 20px; 
-}
-
-#favoriteSidebar.active { left: 0; }
-
-#favoriteSidebar ul { list-style: none; padding: 0; }
-
-#favoriteSidebar li {
-    display: flex;
-    justify-content: space-between; /* 文字靠左，按鈕靠右 */
-    align-items: flex-start;        /* 元素靠上對齊 */
-    padding: 6px 0;
-    border-bottom: 1px solid #f4c095;
-  }
-
-  /* 文字稍微下移 */
-  #favoriteSidebar li span {
-    display: inline-block;
-    transform: translateY(6px); /* 調整數值可微調文字高度 */
-  }
-
-  /* 刪除按鈕維持原位 */
-  #favoritesUl li button {
-    font-size: 1.1rem;
-    cursor: pointer;
-  }
 
   .category-buttons {
     display: flex;
@@ -307,6 +168,65 @@ button { padding: 5px 10px; }
     background: #ffe3d1;
   }
 
+  .mood-selector {
+    max-width: 420px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #fff0e6;
+    border: 1px solid #f4c095;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(245, 139, 84, 0.15);
+  }
+
+  .mood-option {
+    display: block;
+    margin: 10px 0;
+    padding: 14px 12px;
+    border: 2px solid #ffb347;
+    border-radius: 10px;
+    background-color: #fff3e0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 16px;
+    user-select: none;
+  }
+
+  /* 隱藏 checkbox */
+  .mood-option input[type="checkbox"] {
+    display: none;
+  }
+
+  /* 被選到的整個卡片變色 */
+  .mood-option.active {
+    background-color: #ffcc99;
+    border-color: #ff7f00;
+    color: #663300;
+  }
+
+  /* hover 效果 */
+  .mood-option:hover {
+    background-color: #ffd6a5;
+    border-color: #ff9900;
+  }
+
+  button {
+    display: block;
+    width: 100%;
+    margin-top: 15px;
+    padding: 12px;
+    background-color: #ff7f00;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.2s;
+  }
+
+  button:hover {
+    background-color: #ff9900;
+  }
+
   #restaurantList li {
     padding: 8px;
     border-bottom: 1px solid #f4c095;
@@ -321,88 +241,30 @@ button { padding: 5px 10px; }
     margin-right: 10px;
   }
 
-/* 留言區 */
-#reviewArea {
-    margin-top: 20px;
+  .hot-section {
+    max-width: 420px;
+    margin: 20px auto;
+    padding: 15px;
+    background-color: #fff0e6; /* 與其他分頁統一 */
+    border: 1px solid #f4c095; /* 與其他分頁統一 */
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(245, 139, 84, 0.15);
   }
 
-  .rating-group {
-    margin-bottom: 10px;
+  /* ---- 分頁切換 ---- */
+  section,
+  .mood-selector,
+  .hot-section {
+    display: none;
   }
 
-  .rating-row {
-    margin-bottom: 5px;
+  .active {
+    display: block !important;
   }
 
-  .stars {
-    display: inline-block;
-    cursor: pointer;
-    color: gold;
-  }
-
-  .stars span {
-    font-size: 24px;
-    cursor: pointer;
-    color: lightgray; /* 初始灰色 */
-    transition: color 0.2s;
-  }
-
-  .stars span:hover,
-  .stars span:hover ~ span {
-    color: gold; /* 滑鼠滑過效果 */
-  }
-
-  #reviewsUl li {
-    margin-bottom: 10px;
-    display: flex;
-    justify-content: space-between; /* 🔥 左右兩邊靠最邊 */
-    align-items: center;            /* 垂直置中 */
-    padding: 6px 0;
-  }
-
-  #reviewsUl button {
-    margin-left: 10px;
-    cursor: pointer;
-    width: 80px; 
-    background: rgb(252, 86, 86);
-  }
 </style>
 </head>
 <body>
-
-<!-- 登入區 -->
-<div id="loginArea">
-  <span id="welcomeText">未登入</span>
-  <div class="buttons">
-    <button id="loginBtn">登入</button>
-    <button id="registerBtn">註冊</button>
-  </div>
-</div>
-
-<!-- 登入 Modal -->
-<div id="loginModal" class="modal" onclick="clickOutside(event,'loginModal')">
-  <div class="modal-content">
-    <span class="close" onclick="closeLoginModal()">&times;</span>
-    <h2>登入</h2>
-    <input type="text" id="loginUsername" placeholder="帳號"><br>
-    <input type="password" id="loginPassword" placeholder="密碼"><br>
-    <button onclick="login()">登入</button>
-    <p>沒有帳號？<a href="#" onclick="openRegister()">註冊</a></p>
-  </div>
-</div>
-
-<!-- 註冊 Modal -->
-<div id="registerModal" class="modal" onclick="clickOutside(event,'registerModal')">
-  <div class="modal-content">
-    <span class="close" onclick="closeRegisterModal()">&times;</span>
-    <h2>註冊</h2>
-    <input type="text" id="registerUsername" placeholder="帳號"><br>
-    <input type="password" id="registerPassword" placeholder="密碼"><br>
-    <input type="password" id="registerPasswordConfirm" placeholder="確認密碼"><br>
-    <button onclick="register()">註冊</button>
-    <p>已有帳號？<a href="#" onclick="openLogin()">登入</a></p>
-  </div>
-</div>
 
 <div class="hero">
   <h1>美食推薦器</h1>
@@ -411,8 +273,9 @@ button { padding: 5px 10px; }
 <header>
   <a href="#" onclick="showSection('random')">隨機抽選</a>
   <a href="#" onclick="showSection('filter')">分類篩選</a>
+  <a href="#" onclick="showSection('mood')">心情選擇</a>
   <a href="#" onclick="showSection('custom')">輸入需求</a>
-  <a href="#" onclick="showSection('comment')">網友留言區</a>
+  <a href="#" onclick="showSection('hot')">餐廳推薦料理</a>
 </header>
 
 <!-- ======================
@@ -500,6 +363,40 @@ button { padding: 5px 10px; }
 <section id="filter">
   <h2>🍱 分類篩選</h2>
 
+  <label>城市：
+      <select id="categoryCity" onchange="updateCategoryDistricts()">
+        <option value="">請選擇城市</option>
+        <option value="keelung">基隆市</option>
+        <option value="newtaipei">新北市</option>
+        <option value="taipei">台北市</option>
+        <option value="taoyuan">桃園市</option>
+        <option value="hsinchucity">新竹市</option>
+        <option value="hsinchucounty">新竹縣</option>
+        <option value="yilan">宜蘭縣</option>
+        <option value="miaoli">苗栗縣</option>
+        <option value="taichung">台中市</option>
+        <option value="changhua">彰化縣</option>
+        <option value="nantou">南投縣</option>
+        <option value="yunlin">雲林縣</option>
+        <option value="chiayicity">嘉義市</option>
+        <option value="chiayicounty">嘉義縣</option>
+        <option value="tainan">台南市</option>
+        <option value="kaohsiung">高雄市</option>
+        <option value="pingtung">屏東縣</option>
+        <option value="hualien">花蓮縣</option>
+        <option value="taitung">台東縣</option>
+        <option value="penghu">澎湖縣</option>
+        <option value="kinmen">金門縣</option>
+        <option value="lienchiang">連江縣</option>
+      </select>
+    </label>
+
+    <label>區域：
+      <select id="categoryDistrict">
+        <option value="">請先選擇城市</option>
+      </select>
+    </label>
+
   <div class="category-buttons">
     <button onclick="filterCategory('高CP值')">高CP值</button>
     <button onclick="filterCategory('約會餐廳')">約會餐廳</button>
@@ -515,6 +412,78 @@ button { padding: 5px 10px; }
   <div id="mapFilter"></div>
 </section>
 
+<!-- ======================
+      心情選擇
+======================= -->
+<section id="mood">
+  <h2>選擇你的用餐心情 🍊</h2>
+
+  <label>城市：
+    <select id="moodCity" onchange="updateMoodDistricts()">
+      <option value="">請選擇城市</option>
+      <option value="keelung">基隆市</option>
+      <option value="newtaipei">新北市</option>
+      <option value="taipei">台北市</option>
+      <option value="taoyuan">桃園市</option>
+      <option value="hsinchucity">新竹市</option>
+      <option value="hsinchucounty">新竹縣</option>
+      <option value="yilan">宜蘭縣</option>
+      <option value="miaoli">苗栗縣</option>
+      <option value="taichung">台中市</option>
+      <option value="changhua">彰化縣</option>
+      <option value="nantou">南投縣</option>
+      <option value="yunlin">雲林縣</option>
+      <option value="chiayicity">嘉義市</option>
+      <option value="chiayicounty">嘉義縣</option>
+      <option value="tainan">台南市</option>
+      <option value="kaohsiung">高雄市</option>
+      <option value="pingtung">屏東縣</option>
+      <option value="hualien">花蓮縣</option>
+      <option value="taitung">台東縣</option>
+      <option value="penghu">澎湖縣</option>
+      <option value="kinmen">金門縣</option>
+      <option value="lienchiang">連江縣</option>
+    </select>
+  </label>
+
+  <label>區域：
+    <select id="moodDistrict">
+      <option value="">請先選擇城市</option>
+    </select>
+  </label>
+
+  <label>請選擇心情：
+  <form id="moodForm">
+    <label class="mood-option">
+      <input type="checkbox" name="mood" value="開心">
+      😄 開心 / 興奮
+    </label>
+
+    <label class="mood-option">
+      <input type="checkbox" name="mood" value="疲倦">
+      😴 疲倦 / 累
+    </label>
+
+    <label class="mood-option">
+      <input type="checkbox" name="mood" value="傷心">
+      😢 傷心 / 低落
+    </label>
+
+    <label class="mood-option">
+      <input type="checkbox" name="mood" value="放鬆">
+      🧘‍♀️ 放鬆 / 悠閒
+    </label>
+
+    <label class="mood-option">
+      <input type="checkbox" name="mood" value="忙碌">
+      ⏱️ 忙碌 / 匆忙
+    </label>
+    <button type="button" onclick="moodSearch(event)">推薦美食</button>
+
+    <ul id="moodRestaurantList"></ul>
+    <div id="mapMood"></div>
+  </form>
+</section>
 <!-- ======================
       輸入需求
 ======================= -->
@@ -566,56 +535,21 @@ button { padding: 5px 10px; }
 </section>
 
 <!-- ======================
-      網友留言區
+      餐廳推薦料理
 ======================= -->
-<section id="comment">
-  <h2>網友留言區</h2>
+<section id="hot">
+  <h2>🔥 餐廳推薦料理</h2>
 
-  <!-- 🔍 搜尋餐廳 -->
-    <div id="searchArea">
-      <input type="text" id="searchRestaurant" placeholder="輸入餐廳名稱，例如：阿宗麵線">
-      <button id="searchBtn">搜尋評論</button>
-    </div>
+  <div id="searchArea">
+    <input type="text" id="restaurantInput" placeholder="輸入餐廳名稱...">
+    <button type="button" onclick="searchRestaurant(event)">搜尋</button>
+  </div>
 
-    <!-- ✏️ 留言輸入區 -->
-    <div id="reviewArea" style="display:none;">
-      <h3 id="currentRestaurant" style="text-align:center; color:#ff8c42;"></h3>
+  <ul id="restaurantResults"></ul>
 
-      <div class="rating-group">
-        <div class="rating-row">
-          <span>口味：</span><div class="stars" data-category="taste">★★★★★</div>
-        </div>
-        <div class="rating-row">
-          <span>服務：</span><div class="stars" data-category="service">★★★★★</div>
-        </div>
-        <div class="rating-row">
-          <span>環境：</span><div class="stars" data-category="environment">★★★★★</div>
-        </div>
-        <div class="rating-row">
-          <span>價位：</span><div class="stars" data-category="price">★★★★★</div>
-        </div>
-      </div>
-
-      <textarea id="commentInput" placeholder="輸入您的用餐心得..."></textarea>
-      <button id="submitReview">送出評論</button>
-
-      <!-- 💬 評論列表 -->
-      <div id="reviewList">
-        <h3>🍊 網友留言</h3>
-        <ul id="reviewsUl"></ul>
-      </div>
-    </div>
+  <h3 style="color:#62422b;">🍽 推薦料理（Top 10）</h3>
+  <ul id="topDishList"></ul>
 </section>
-
-<!-- ======================
-      收藏側欄
-======================= -->
-<button id="toggleFavorites">☰ 收藏</button>
-
-<div id="favoriteSidebar">
-  <h3>我的收藏</h3>
-  <ul id="favoritesUl"></ul>
-</div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
@@ -648,6 +582,11 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '&copy; OpenStreetMap contributors'
 }).addTo(mapFilter);
 
+let mapMood = L.map('mapMood').setView(defaultCenter, 12);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(mapMood);
+
 let mapCustom = L.map('mapCustom').setView(defaultCenter, 12);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '&copy; OpenStreetMap contributors'
@@ -656,11 +595,13 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 /* marker holders */
 let singleMarker = null;
 let filterMarkers = [];
+let moodMarkers = [];
 let customMarkers = [];
 
 /* -------------------- UI helpers -------------------- */
 function showSection(id) {
-  document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('section')
+    .forEach(s => s.classList.remove('active'));
 
   const el = document.getElementById(id);
   if (el) el.classList.add('active');
@@ -668,7 +609,9 @@ function showSection(id) {
   setTimeout(() => {
     if (window.map && id === "random") map.invalidateSize();
     if (window.mapFilter && id === "filter") mapFilter.invalidateSize();
+    if (window.mapMood && id === "mood") mapMood.invalidateSize();
     if (window.mapCustom && id === "custom") mapCustom.invalidateSize();
+    if (window.mapHot && id === "hot") mapHot.invalidateSize();
   }, 100);
 }
 
@@ -719,6 +662,30 @@ function updateDistricts(){
     sel.innerHTML = '<option value="">請先選擇城市</option>';
   }
 }
+function updateCategoryDistricts(){
+  const city = document.getElementById('categoryCity').value;
+  const sel = document.getElementById('categoryDistrict');
+  sel.innerHTML = '<option value="">全部</option>';
+  if (city && districts[city]) {
+    districts[city].forEach(d => {
+      const o = document.createElement('option'); o.value = d; o.textContent = d; sel.appendChild(o);
+    });
+  } else {
+    sel.innerHTML = '<option value="">請先選擇城市</option>';
+  }
+}
+function updateMoodDistricts(){
+  const city = document.getElementById('moodCity').value;
+  const sel = document.getElementById('moodDistrict');
+  sel.innerHTML = '<option value="">全部</option>';
+  if (city && districts[city]) {
+    districts[city].forEach(d => {
+      const o = document.createElement('option'); o.value = d; o.textContent = d; sel.appendChild(o);
+    });
+  } else {
+    sel.innerHTML = '<option value="">請先選擇城市</option>';
+  }
+}
 function updateCustomDistricts(){
   const city = document.getElementById('customCity').value;
   const sel = document.getElementById('customDistrict');
@@ -736,102 +703,7 @@ function checkOtherType(){
   document.getElementById('otherInputLabel').style.display = main === '其他' ? 'block' : 'none';
 }
 
-/* ===================== Authentication & Favorites ===================== */
-let loggedIn = false;
-let currentUser = null;
-let users = {}; // 模擬帳號資料庫
-let userFavorites = {}; // 使用者收藏
-
-const loginBtn = document.getElementById('loginBtn');
-const registerBtn = document.getElementById('registerBtn');
-const welcomeText = document.getElementById('welcomeText');
-
-// Modal 開關函式
-function openLogin() { document.getElementById("loginModal").style.display="flex"; document.getElementById("registerModal").style.display="none";}
-function openRegister() { document.getElementById("registerModal").style.display="flex"; document.getElementById("loginModal").style.display="none";}
-function closeLoginModal() { document.getElementById("loginModal").style.display="none";}
-function closeRegisterModal() { document.getElementById("registerModal").style.display="none";}
-function clickOutside(event, modalId) { if(event.target.id===modalId) document.getElementById(modalId).style.display="none"; }
-
-// 註冊功能
-function register() {
-  const u = document.getElementById("registerUsername").value.trim();
-  const p = document.getElementById("registerPassword").value;
-  const p2 = document.getElementById("registerPasswordConfirm").value;
-  if(!u||!p) return alert("請輸入帳號和密碼");
-  if(p!==p2) return alert("密碼不一致");
-  if(users[u]) return alert("帳號已存在");
-  users[u]=p;
-  userFavorites[u]=[];
-  alert("註冊成功！");
-  closeRegisterModal();
-  openLogin();
-}
-
-// 登入功能
-function login() {
-  const u = document.getElementById("loginUsername").value.trim();
-  const p = document.getElementById("loginPassword").value;
-  if(!u||!p) return alert("請輸入帳號和密碼");
-  if(users[u] && users[u]===p){
-    loggedIn=true;
-    currentUser=u;
-    welcomeText.textContent=`您好, ${u}`;
-    loginBtn.textContent="登出";
-    closeLoginModal();
-  } else { alert("帳號或密碼錯誤"); }
-}
-
-// 登出按鈕
-loginBtn.onclick = () => {
-  if(!loggedIn) openLogin();
-  else {
-    loggedIn=false;
-    currentUser=null;
-    welcomeText.textContent="未登入";
-    loginBtn.textContent="登入";
-    alert("已登出");
-  }
-};
-registerBtn.onclick=openRegister;
-
-async function addToFavorites(place) {
-  if (!loggedIn) return alert('請先登入才能收藏');
-  const resp = await postAPI({ action: 'addFavorite', username: currentUser, place });
-  if (resp && resp.ok) {
-    alert('已加入收藏');
-    loadFavoritesForCurrentUser();
-  } else {
-    alert('加入收藏失敗：' + (resp.error || JSON.stringify(resp)));
-  }
-}
-
-async function loadFavoritesForCurrentUser() {
-  if (!loggedIn) return;
-  const resp = await postAPI({ action: 'getFavorites', username: currentUser });
-  const ul = document.getElementById('favoritesUl');
-  ul.innerHTML = '';
-  if (resp && resp.ok && Array.isArray(resp.favorites)) {
-    resp.favorites.forEach(f => {
-      const li = document.createElement('li');
-      li.innerHTML = `<span>${f.name} — ${f.address || ''}</span>
-                      <button style="margin-left:8px" onclick='removeFavorite("${f.name.replace(/"/g,"\\\"")}")'>移除</button>`;
-      ul.appendChild(li);
-    });
-  }
-}
-
-async function removeFavorite(name) {
-  if (!loggedIn) return alert('請先登入');
-  const resp = await postAPI({ action: 'removeFavorite', username: currentUser, name });
-  if (resp && resp.ok) {
-    loadFavoritesForCurrentUser();
-  } else {
-    alert('刪除失敗');
-  }
-}
-
-/* ===================== 隨機抽選（呼叫 Gemin i via backend recommend） ===================== */
+/* ===================== 隨機抽選（呼叫 Gemini via backend recommend） ===================== */
 async function randomRecommend() {
   // 收集條件
   const city = document.getElementById('citySelect').value;
@@ -878,11 +750,9 @@ function renderSingleRecommendation(choice) {
   if (!choice) { recDiv.innerHTML = '沒有推薦'; return; }
   const title = document.createElement('h3'); title.textContent = choice.name || 'Unnamed';
   const p = document.createElement('p'); p.innerHTML = `${choice.address || ''} ${choice.price ? '｜' + choice.price : ''}<br>${choice.reason || ''}`;
-  const favBtn = document.createElement('button'); favBtn.textContent = '★ 收藏'; favBtn.onclick = () => addToFavorites({
-    name: choice.name, address: choice.address, lat: choice.lat, lng: choice.lng
-  });
+  
 
-  recDiv.appendChild(title); recDiv.appendChild(p); recDiv.appendChild(favBtn);
+  recDiv.appendChild(title); recDiv.appendChild(p);
 
   // map
   if (singleMarker) {
@@ -925,24 +795,104 @@ async function filterCategory(category) {
   }
 
   list.forEach(p => {
-    const li = document.createElement('li');
-    li.innerHTML = `<span style="display:block">${p.name} ${p.price ? '｜' + p.price : ''} <br><small>${p.address || ''}</small></span>
-                    <button style="margin-left:8px">收藏</button>`;
-    // button onclick
-    const btn = li.querySelector('button');
-    btn.onclick = () => addToFavorites({ name: p.name, address: p.address, lat: p.lat, lng: p.lng });
+      // 建立列表項目
+      const li = document.createElement('li');
+      li.innerHTML = `<span style="display:block">
+                          ${p.name} ${p.price ? '｜' + p.price : ''} <br>
+                          <small>${p.address || ''}</small>
+                      </span>`;
 
-    listDiv.appendChild(li);
+      // 加到列表容器
+      listDiv.appendChild(li);
 
-    if (p.lat && p.lng) {
-      const m = L.marker([p.lat, p.lng]).addTo(mapFilter).bindPopup(`<b>${p.name}</b><br>${p.address || ''}`);
-      filterMarkers.push(m);
-    }
+      // 如果有經緯度就加到地圖上
+      if (p.lat && p.lng) {
+          const m = L.marker([p.lat, p.lng])
+                      .addTo(mapFilter)
+                      .bindPopup(`<b>${p.name}</b><br>${p.address || ''}`);
+          filterMarkers.push(m);
+      }
   });
 
   // 聚焦到第一個有座標的點
   const first = list.find(x => x.lat && x.lng);
   if (first) mapFilter.setView([first.lat, first.lng], 13);
+}
+
+/* ===================== 心情按鈕變色 ===================== */
+document.querySelectorAll('.mood-option').forEach(option => {
+  option.addEventListener('click', function () {
+    // 取消其他選項
+    document.querySelectorAll('.mood-option').forEach(o => o.classList.remove('active'));
+    document.querySelectorAll('.mood-option input').forEach(i => (i.checked = false));
+
+    // 設定目前這個
+    this.classList.add('active');
+    this.querySelector('input').checked = true;
+  });
+});
+
+/* ===================== 心情搜尋（顯示多筆） ===================== */
+async function moodSearch(event) {
+  if (event) event.preventDefault(); // 避免 form 重新整理
+
+  const city = document.getElementById('moodCity').value;
+  const district = document.getElementById('moodDistrict').value;
+
+  // 取得多個勾選的心情
+  const moods = [...document.querySelectorAll('input[name="mood"]:checked')].map(m => m.value);
+
+  if (moods.length === 0) {
+    alert("請至少選擇一個心情！");
+    return;
+  }
+
+  const options = { mode: 'mood', moods, city, district };
+
+  const listDiv = document.getElementById('moodRestaurantList');
+  listDiv.innerHTML = '搜尋中（由 Gemini 生成）...';
+
+  const resp = await postAPI({ action: 'recommend', options });
+  if (!resp || !resp.ok) {
+    listDiv.innerHTML = '搜尋失敗：' +
+      (resp ? (resp.error || JSON.stringify(resp)) : '無回應');
+    return;
+  }
+
+  const list = resp.restaurants || [];
+  listDiv.innerHTML = '';
+
+  // ===== 清除舊 marker =====
+  if (window.moodMarkers) {
+    moodMarkers.forEach(m => mapMood.removeLayer(m));
+  }
+  window.moodMarkers = [];
+
+  if (list.length === 0) {
+    listDiv.innerHTML = '<li>無結果</li>';
+    return;
+  }
+
+  // ===== 顯示結果與標記地圖 =====
+  list.forEach(p => {
+      const li = document.createElement('li');
+      li.innerHTML = `<span style="display:block">
+                          ${p.name} ${p.price ? '｜' + p.price : ''} <br>
+                          <small>${p.address || ''}</small>
+                      </span>`;
+      listDiv.appendChild(li);
+
+      if (p.lat && p.lng) {
+          const m = L.marker([p.lat, p.lng])
+                      .addTo(mapMood)
+                      .bindPopup(`<b>${p.name}</b><br>${p.address || ''}`);
+          moodMarkers.push(m);
+      }
+  });
+
+  // ===== 聚焦到第一筆有座標的 =====
+  const first = list.find(x => x.lat && x.lng);
+  if (first) mapMood.setView([first.lat, first.lng], 13);
 }
 
 /* ===================== 自訂需求（free text） ===================== */
@@ -979,14 +929,19 @@ async function customSearch() {
     const el = document.createElement('div');
     el.style.borderBottom = '1px solid #f4c095';
     el.style.padding = '8px 0';
-    el.innerHTML = `<strong>${p.name}</strong><div>${p.address || ''}</div><div style="font-size:0.9rem;">${p.reason || ''}</div>
-                    <button style="margin-top:6px">收藏</button>`;
-    const btn = el.querySelector('button');
-    btn.onclick = () => addToFavorites({ name: p.name, address: p.address, lat: p.lat, lng: p.lng });
+
+    // ❌ 已移除收藏按鈕
+    el.innerHTML = `
+      <strong>${p.name}</strong>
+      <div>${p.address || ''}</div>
+      <div style="font-size:0.9rem;">${p.reason || ''}</div>
+    `;
+
     resultsDiv.appendChild(el);
 
     if (p.lat && p.lng) {
-      const m = L.marker([p.lat, p.lng]).addTo(mapCustom).bindPopup(`<b>${p.name}</b><br>${p.address || ''}`);
+      const m = L.marker([p.lat, p.lng]).addTo(mapCustom)
+                .bindPopup(`<b>${p.name}</b><br>${p.address || ''}`);
       customMarkers.push(m);
     }
   });
@@ -995,114 +950,72 @@ async function customSearch() {
   if (first) mapCustom.setView([first.lat, first.lng], 13);
 }
 
-// ===== 搜尋餐廳 =====
-const searchBtn = document.getElementById("searchBtn");
-const reviewArea = document.getElementById("reviewArea");
-const currentRestaurant = document.getElementById("currentRestaurant");
-const reviewsUl = document.getElementById("reviewsUl");
+/* ===================== 餐廳料理搜尋（Top 10） ===================== */
+async function searchRestaurant(event) {
+  if (event) event.preventDefault();
 
-searchBtn.onclick = () => {
-  const restaurantName = document.getElementById("searchRestaurant").value.trim();
-  if (!restaurantName) return alert("請輸入餐廳名稱");
+  const name = document.getElementById('restaurantInput').value.trim();
+  const resultDiv = document.getElementById('restaurantResults');
+  const dishDiv = document.getElementById('topDishList');
 
-  currentRestaurant.innerText = restaurantName;
-  reviewArea.style.display = "block";
+  if (!name) {
+    alert("請輸入餐廳名稱！");
+    return;
+  }
 
-  const reviews = JSON.parse(localStorage.getItem(restaurantName)) || [];
-  renderReviews(reviews, restaurantName);
+  resultDiv.innerHTML = "搜尋中…";
+  dishDiv.innerHTML = "";
 
-  // 重置星星顯示
-  document.querySelectorAll(".stars").forEach(starDiv => {
-    starDiv.innerHTML = "★★★★★".split("").map((_, i) => `<span data-index="${i}">★</span>`).join("");
+  // ====== 呼叫後端：找餐廳＋熱門料理 ======
+  const resp = await postAPI({
+    action: "hotdish",
+    restaurant: name
   });
-  document.getElementById("commentInput").value = "";
-  initStarClicks();
-};
 
-// ===== 初始化星星點擊事件 =====
-function initStarClicks() {
-  document.querySelectorAll(".stars").forEach(starDiv => {
-    const spans = starDiv.querySelectorAll("span");
+  if (!resp || !resp.ok) {
+    resultDiv.innerHTML = "搜尋失敗：" +
+      (resp ? (resp.error || JSON.stringify(resp)) : "無回應");
+    return;
+  }
 
-    // 初始化顏色為灰色
-    spans.forEach(s => s.style.color = "lightgray");
+  // ====== 顯示餐廳資訊 ======
+  const restaurant = resp.restaurants.restaurant;
+  if (!restaurant) {
+    resultDiv.innerHTML = "<li>找不到餐廳</li>";
+    return;
+  }
 
-    spans.forEach(span => {
-      span.onclick = () => {
-        const index = parseInt(span.dataset.index); // 取得點擊的星星位置
-        spans.forEach((s, i) => {
-          s.style.color = i <= index ? "gold" : "lightgray"; // 左邊及自己黃金色，右邊灰色
-        });
-      };
-    });
-  });
-}
+  resultDiv.innerHTML = `
+    <li>
+      <b>${restaurant.name}</b><br>
+      <small>${restaurant.address || ""}</small>
+    </li>
+  `;
 
-// ===== 渲染留言列表 =====
-function renderReviews(reviews, restaurantName) {
-  reviewsUl.innerHTML = "";
-  reviews.forEach((r, index) => {
+  // ====== 顯示 Top 10 菜色 ======
+  const dishes = resp.restaurants.dishes || [];
+
+  if (dishes.length === 0) {
+    dishDiv.innerHTML = "<li>沒有找到推薦料理</li>";
+    return;
+  }
+
+  dishDiv.innerHTML = "";
+  dishes.slice(0, 10).forEach((d, i) => {
     const li = document.createElement("li");
-    li.innerHTML = `<strong>${r.username}</strong> (口味:${r.rating.taste}⭐ / 服務:${r.rating.service}⭐ / 環境:${r.rating.environment}⭐ / 價位:${r.rating.price}⭐): ${r.comment}`;
-
-    // 刪除按鈕：登入使用者刪自己留言 OR 訪客刪自己留言
-    const currentName = loggedIn ? currentUser : "訪客";
-    if (r.username === currentName) {
-      const btn = document.createElement("button");
-      btn.innerText = "刪除";
-      btn.onclick = () => {
-        reviews.splice(index, 1);
-        localStorage.setItem(restaurantName, JSON.stringify(reviews));
-        renderReviews(reviews, restaurantName);
-      };
-      li.appendChild(btn);
-    }
-
-    reviewsUl.appendChild(li);
+    li.innerHTML = `#${i + 1}　${d.name} ${d.score ? "｜熱門分數：" + d.score : ""}`;
+    dishDiv.appendChild(li);
   });
 }
-
-// ===== 送出留言 =====
-const submitReview = document.getElementById("submitReview");
-submitReview.onclick = () => {
-  const restaurantName = currentRestaurant.innerText;
-  const comment = document.getElementById("commentInput").value.trim();
-  if (!comment) return alert("請輸入留言內容");
-
-  // 取得評分
-  const rating = {};
-  document.querySelectorAll(".stars").forEach(starDiv => {
-    const spans = starDiv.querySelectorAll("span");
-    rating[starDiv.dataset.category] = Array.from(spans).filter(s => s.style.color === "gold").length;
-  });
-
-  const reviews = JSON.parse(localStorage.getItem(restaurantName)) || [];
-  // 使用登入名稱或訪客
-  const currentName = loggedIn ? currentUser : "訪客";
-
-  // 給留言一個隨機 ID，方便訪客刪除自己留言
-  const reviewId = Date.now() + Math.random().toString(36).substr(2, 5);
-
-  reviews.push({ id: reviewId, username: currentName, comment, rating });
-  localStorage.setItem(restaurantName, JSON.stringify(reviews));
-
-  renderReviews(reviews, restaurantName);
-  document.getElementById("commentInput").value = "";
-
-  // 重置星星
-  document.querySelectorAll(".stars").forEach(starDiv => {
-    starDiv.querySelectorAll("span").forEach(s => s.style.color = "gold");
-  });
-};
 
 /* ===================== 初始化一些 UI ===================== */
 updateDistricts();
 updateCustomDistricts();
 
 /* ----------------- favorite sidebar toggle ----------------- */
-document.getElementById('toggleFavorites').addEventListener('click', () => {
-  document.getElementById('favoriteSidebar').classList.toggle('active');
-});
+// document.getElementById('toggleFavorites').addEventListener('click', () => {
+//   document.getElementById('favoriteSidebar').classList.toggle('active');
+// });
 </script>
 </body>
 </html>
