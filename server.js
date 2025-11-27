@@ -8,7 +8,7 @@ app.use(express.json());
 
 app.post('/gemini', async (req, res) => {
     //呼叫google scripts
-    const response = await fetch("https://script.google.com/macros/s/AKfycbzQDmgTSxyPKTBPqEmW3okvpEmXwUUVwG-amxBGe5oVhSuO5dlzgFWgbnqzt69QjzEE/exec", {
+    const response = await fetch("https://script.google.com/macros/s/AKfycbx0fTvmqXO3IfCz6gTvstPSvlL0FVZ636DoKFQ8gA83GAexTDN1khgeZTlgLu7kqkFy/exec", {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(req.body)
