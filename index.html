@@ -979,7 +979,7 @@ async function searchRestaurant(event) {
   }
 
   // ====== 顯示餐廳資訊 ======
-  const restaurant = resp.restaurants.restaurant;
+  const restaurant = resp.parsed.restaurant;
   if (!restaurant) {
     resultDiv.innerHTML = "<li>找不到餐廳</li>";
     return;
