@@ -770,8 +770,8 @@ function renderSingleRecommendation(choice) {
 
 /* ===================== 分類篩選（顯示多筆） ===================== */
 async function filterCategory(category) {
-  const city = document.getElementById('citySelect').value;
-  const district = document.getElementById('districtSelect').value;
+  const city = document.getElementById('categoryCity').value;
+  const district = document.getElementById('categoryDistrict').value;
   const options = { mode: 'category', category, city, district };
 
   const listDiv = document.getElementById('restaurantList');
