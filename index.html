@@ -993,7 +993,7 @@ async function searchRestaurant(event) {
   `;
 
   // ====== 顯示 Top 10 菜色 ======
-  const dishes = resp.restaurants.dishes || [];
+  const dishes = resp.parsed.dishes || [];
 
   if (dishes.length === 0) {
     dishDiv.innerHTML = "<li>沒有找到推薦料理</li>";
