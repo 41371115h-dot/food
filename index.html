@@ -274,6 +274,7 @@ button:hover { background-color: #f79465; }
   <a href="#" onclick="showSection('random')">隨機抽選</a>
   <a href="#" onclick="showSection('filter')">分類篩選</a>
   <a href="#" onclick="showSection('mood')">心情選擇</a>
+  <a href="#" onclick="showSection('weather')">天氣選擇</a>
   <a href="#" onclick="showSection('custom')">輸入需求</a>
   <a href="#" onclick="showSection('hot')">餐廳推薦料理</a>
 </header>
@@ -416,7 +417,7 @@ button:hover { background-color: #f79465; }
       心情選擇
 ======================= -->
 <section id="mood">
-  <h2>選擇你的用餐心情 🍊</h2>
+  <h2>🍊 心情選擇</h2>
 
   <label>城市：
     <select id="moodCity" onchange="updateMoodDistricts()">
@@ -484,6 +485,53 @@ button:hover { background-color: #f79465; }
     <div id="mapMood"></div>
   </form>
 </section>
+
+<!-- ======================
+      天氣選擇
+===================== -->
+<section id="weather">
+  <h2>☁️ 天氣選擇</h2>
+
+  <label>城市：
+    <select id="weatherCity" onchange="updateWeatherDistricts()">
+      <option value="">請選擇城市</option>
+      <option value="keelung">基隆市</option>
+      <option value="newtaipei">新北市</option>
+      <option value="taipei">台北市</option>
+      <option value="taoyuan">桃園市</option>
+      <option value="hsinchucity">新竹市</option>
+      <option value="hsinchucounty">新竹縣</option>
+      <option value="yilan">宜蘭縣</option>
+      <option value="miaoli">苗栗縣</option>
+      <option value="taichung">台中市</option>
+      <option value="changhua">彰化縣</option>
+      <option value="nantou">南投縣</option>
+      <option value="yunlin">雲林縣</option>
+      <option value="chiayicity">嘉義市</option>
+      <option value="chiayicounty">嘉義縣</option>
+      <option value="tainan">台南市</option>
+      <option value="kaohsiung">高雄市</option>
+      <option value="pingtung">屏東縣</option>
+      <option value="hualien">花蓮縣</option>
+      <option value="taitung">台東縣</option>
+      <option value="penghu">澎湖縣</option>
+      <option value="kinmen">金門縣</option>
+      <option value="lienchiang">連江縣</option>
+    </select>
+  </label>
+
+  <label>區域：
+    <select id="weatherDistrict">
+      <option value="">請先選擇城市</option>
+    </select>
+  </label>
+
+  <button onclick="getWeatherAndRecommend()">推薦美食</button>
+
+  <ul id="weatherRestaurantList"></ul>
+  <div id="mapWeather" style="height:300px; margin-top:10px;"></div>
+</section>
+
 <!-- ======================
       輸入需求
 ======================= -->
@@ -587,6 +635,11 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '&copy; OpenStreetMap contributors'
 }).addTo(mapMood);
 
+let mapWeather = L.map('mapWeather').setView(defaultCenter, 12);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(mapWeather);
+
 let mapCustom = L.map('mapCustom').setView(defaultCenter, 12);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '&copy; OpenStreetMap contributors'
@@ -596,6 +649,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 let singleMarker = null;
 let filterMarkers = [];
 let moodMarkers = [];
+let weatherMarkers = [];
 let customMarkers = [];
 
 /* -------------------- UI helpers -------------------- */
@@ -610,6 +664,7 @@ function showSection(id) {
     if (window.map && id === "random") map.invalidateSize();
     if (window.mapFilter && id === "filter") mapFilter.invalidateSize();
     if (window.mapMood && id === "mood") mapMood.invalidateSize();
+    if (window.mapWeather && id === "weather") mapWeather.invalidateSize();
     if (window.mapCustom && id === "custom") mapCustom.invalidateSize();
     if (window.mapHot && id === "hot") mapHot.invalidateSize();
   }, 100);
@@ -685,6 +740,18 @@ function updateMoodDistricts(){
   } else {
     sel.innerHTML = '<option value="">請先選擇城市</option>';
   }
+}
+function updateWeatherDistricts() {
+  const city = document.getElementById('weatherCity').value;
+  const districtSelect = document.getElementById('weatherDistrict');
+  districtSelect.innerHTML = '<option value="">請先選擇城市</option>';
+  if (!city) return;
+  districts[city].forEach(d => {
+    const opt = document.createElement('option');
+    opt.value = d;
+    opt.textContent = d;
+    districtSelect.appendChild(opt);
+  });
 }
 function updateCustomDistricts(){
   const city = document.getElementById('customCity').value;
@@ -895,6 +962,164 @@ async function moodSearch(event) {
   if (first) mapMood.setView([first.lat, first.lng], 13);
 }
 
+/* ===================== 天氣選擇 (使用 WeatherAPI.com) ===================== */
+async function getWeatherAndRecommend() {
+  // 獲取中文城市名用於顯示，例如：台北市
+  const cityChinese = document.getElementById('weatherCity').options[document.getElementById('weatherCity').selectedIndex].textContent;
+  // 獲取城市代碼/拼音用於後端，例如：taipei (用於 postAPI)
+  const cityCode = document.getElementById('weatherCity').value; 
+  const district = document.getElementById('weatherDistrict').value;
+  const listEl = document.getElementById('weatherRestaurantList');
+  listEl.innerHTML = '<li>正在取得天氣資訊...</li>';
+
+  if (!cityCode || district === '請先選擇城市' || district === '全部') {
+    alert('請先選擇城市與區域');
+    listEl.innerHTML = '';
+    return;
+  }
+  
+  // 清除舊的 Markers
+  weatherMarkers.forEach(m => mapWeather.removeLayer(m));
+  weatherMarkers = [];
+
+  try {
+    // =========================================================================
+    // 🔥 請在此替換為您在 weatherapi.com 取得的有效 API Key
+    const apiKey = '66a08f4389d049e6a5763930250112'; 
+    
+    // WeatherAPI 查詢通常接受 "地區名稱" 或 "經緯度"，我們使用中文城市+區域名稱
+    const locationQuery = encodeURIComponent(district + ',' + cityChinese); 
+    
+    // 使用 WeatherAPI.com 的 Current Weather Endpoint
+    const url = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${locationQuery}&lang=zh`;
+    // =========================================================================
+
+    const response = await fetch(url);
+    const data = await response.json();
+    
+    // 檢查 WeatherAPI.com 的錯誤 (他們使用 error 物件)
+    if (data.error) {
+        // 顯示 API 錯誤訊息，幫助您診斷
+        listEl.innerHTML = `<li>無法取得天氣資訊。API 錯誤碼: ${data.error.code}。訊息: ${data.error.message}</li>`;
+        return;
+    }
+
+    // 解析 WeatherAPI.com 的資料結構
+    const temp = data.current.temp_c;
+    // ⚠️ 這裡使用 let 讓 description 可以被修改
+    let description = data.current.condition.text; 
+    
+    // 🔥 簡體轉繁體邏輯開始 🔥
+    const simplifiedToTraditional = {
+        '晴': '晴', 
+        '多云': '多雲',
+        '阴': '陰',
+        '雨': '雨',
+        '小雨': '小雨',
+        '中雨': '中雨',
+        '大雨': '大雨',
+        '阵雨': '陣雨',
+        '雷阵雨': '雷陣雨',
+        '雾': '霧',
+        '雪': '雪',
+        '冰雹': '冰雹',
+        '转': '轉', // 例如 '多云转晴' -> '多雲轉晴'
+        '有时': '有時',
+        '轻微': '輕微',
+        // 如果遇到其他未轉換的簡體字，請擴充此列表
+    };
+
+    // 進行字串替換
+    for (const simplified in simplifiedToTraditional) {
+        if (simplifiedToTraditional.hasOwnProperty(simplified)) {
+            const traditional = simplifiedToTraditional[simplified];
+            // 使用正規表達式進行全局替換 (將所有匹配到的簡體字都換掉)
+            const regex = new RegExp(simplified, 'g');
+            description = description.replace(regex, traditional);
+        }
+    }
+    // 🔥 簡體轉繁體邏輯結束 🔥
+    
+    // 顯示天氣資訊 (這裡使用的 description 已經是繁體字)
+    const weatherInfoHtml = `<hr>
+        <strong>📍 地區：</strong>${cityChinese}${district} <br>
+        <strong>☁️ 天氣：</strong>${description} <strong>氣溫：</strong>${temp}°C
+        <hr>`;
+        
+    // 獨立的載入訊息
+    listEl.innerHTML = weatherInfoHtml;
+    const loadingMessage = document.createElement('li');
+    loadingMessage.style.color = '#f58b54';
+    loadingMessage.textContent = '正在使用 Gemini API 推薦餐廳...';
+    listEl.appendChild(loadingMessage);
+
+    // 根據天氣描述設定推薦模式
+    let recommendType = '一般';
+    if (description.includes('雨') || temp <= 18) recommendType = '下雨天或冷天，適合熱湯暖胃、有室內座位的';
+    else if (description.includes('晴') && temp >= 28) recommendType = '晴朗炎熱，適合冰品飲料或日式料理的';
+    else if (description.includes('晴')) recommendType = '晴天，適合戶外用餐或特色小店的';
+    else recommendType = '陰天，適合舒適的室內餐廳的';
+    
+    // 呼叫後端 API (發送給您設置的 proxy server)
+    const payload = {
+      action: 'recommend', // 確保使用正確的 action
+      options: {
+        mode: 'custom', 
+        city: cityCode, // 使用城市代碼/拼音
+        district: district,
+        // 將天氣資訊和推薦需求傳給 Gemini
+        query: `因為現在天氣是 ${temp}°C, ${description}，我想要找${recommendType}餐廳。請給出五個推薦。`
+      }
+    };
+    
+    const res = await postAPI(payload);
+
+    if (!res || !res.ok) {
+      listEl.innerHTML += '<li>無法取得餐廳資訊：' + (res ? (res.error || '無回應') : '無回應') + '</li>';
+      return;
+    }
+
+    const list = res.restaurants || [];
+
+    if (list.length === 0) {
+        listEl.innerHTML += '<li>Gemini 沒有找到合適的推薦</li>';
+        return;
+    }
+
+    // 顯示推薦列表與標記地圖
+    let listHtml = '';
+    list.forEach(r => {
+      listHtml += `
+        <li>
+          <span style="display:block">
+              <strong>${r.name}</strong> ${r.price ? '｜' + r.price : ''} <br>
+              <small>${r.address || ''}</small>
+          </span>
+        </li>
+      `;
+      // 在地圖上標記
+      if (r.lat && r.lng) {
+        const marker = L.marker([r.lat, r.lng]).addTo(mapWeather)
+          .bindPopup(`<strong>${r.name}</strong><br>${r.address}`);
+        weatherMarkers.push(marker);
+      }
+    });
+
+    listEl.innerHTML = weatherInfoHtml; 
+    const ul = document.createElement('ul');
+    ul.innerHTML = listHtml;
+    listEl.appendChild(ul);
+
+    // 聚焦到第一個有座標的點
+    const first = list.find(x => x.lat && x.lng);
+    if (first) mapWeather.setView([first.lat, first.lng], 14);
+
+  } catch (err) {
+    console.error(err);
+    listEl.innerHTML = '<li>天氣或餐廳資訊取得失敗 (網路或程式碼錯誤)：' + err.message + '</li>';
+  }
+}
+
 /* ===================== 自訂需求（free text） ===================== */
 async function customSearch() {
   const city = document.getElementById('customCity').value;
@@ -993,7 +1218,7 @@ async function searchRestaurant(event) {
   `;
 
   // ====== 顯示 Top 10 菜色 ======
-  const dishes = resp.restaurants.dishes || [];
+  const dishes = resp.parsed.dishes || [];
 
   if (dishes.length === 0) {
     dishDiv.innerHTML = "<li>沒有找到推薦料理</li>";
